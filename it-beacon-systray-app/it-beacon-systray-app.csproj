@@ -9,4 +9,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="it-beacon-common" Version="0.1.0" />
+  </ItemGroup>
+
 </Project>
