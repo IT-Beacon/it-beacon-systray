@@ -10,7 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="it-beacon-common" Version="0.1.0" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <PackageReference Include="it-beacon-common" Version="1.0.21" />
   </ItemGroup>
 
 </Project>
