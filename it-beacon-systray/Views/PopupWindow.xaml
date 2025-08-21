@@ -7,28 +7,38 @@
         ResizeMode="NoResize"
         Background="Transparent"
         ShowInTaskbar="False"
-        Focusable="True">
+        Focusable="True"
+        Style="{StaticResource PopupWindowStyle}">
 
     <!-- Rounded border defines actual background -->
-    <Border CornerRadius="12"
-            BorderThickness="1"
-            BorderBrush="Gray"
-            Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-        <Grid Margin="10">
+    <Border CornerRadius="6"
+        BorderThickness="1"
+        BorderBrush="{DynamicResource PopupBorderBrush}"
+        Background="{DynamicResource PopupBackgroundBrush}">
+        <Grid Margin="20">
             <StackPanel>
                 <TextBlock Text="IT Beacon - System Tray" 
-                           FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-                <TextBlock Text="Recent Activity" FontWeight="SemiBold"/>
+                       FontSize="16" FontWeight="Bold" Margin="0,0,0,10"
+                       Foreground="{DynamicResource PopupForegroundBrush}"/>
+
+                <TextBlock Text="Recent Activity" 
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource PopupForegroundBrush}"/>
+
                 <ListBox>
-                    <ListBoxItem Content="Placeholder for synced file 1"/>
-                    <ListBoxItem Content="Placeholder for synced file 2"/>
-                    <ListBoxItem Content="Placeholder for synced file 3"/>
+                    <ListBoxItem Content="Placeholder for synced file 1" 
+                             Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <ListBoxItem Content="Placeholder for synced file 2" 
+                             Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <ListBoxItem Content="Placeholder for synced file 3" 
+                             Foreground="{DynamicResource PopupForegroundBrush}"/>
                 </ListBox>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+
+                <UniformGrid Rows="1" Margin="0,10,0,0">
                     <Button Content="Open Folder" Margin="5,0"/>
                     <Button Content="View Online" Margin="5,0"/>
                     <Button Content="Recycle Bin" Margin="5,0"/>
-                </StackPanel>
+                </UniformGrid>
             </StackPanel>
         </Grid>
     </Border>
