@@ -5,108 +5,17 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- Shared BeaconUI resources from it-beacon-common -->
+                <ResourceDictionary Source="pack://application:,,,/it-beacon-common;component/Themes/BeaconUI.xaml"/>
+
+                <!-- App-specific resources -->
                 <ResourceDictionary Source="TrayIcon.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Theme Brushes -->
-            <SolidColorBrush x:Key="PopupBackgroundBrush" Color="White"/>
-            <SolidColorBrush x:Key="PopupForegroundBrush" Color="Black"/>
-            <SolidColorBrush x:Key="PopupBorderBrush" Color="Gray"/>
-
-            <!-- Accent Brushes (Windows accent color) -->
-            <SolidColorBrush x:Key="AccentBrush" Color="{x:Static SystemParameters.WindowGlassColor}"/>
-            <SolidColorBrush x:Key="AccentHoverBrush" Color="{x:Static SystemParameters.WindowGlassColor}"/>
-            <SolidColorBrush x:Key="AccentPressedBrush" Color="{x:Static SystemParameters.WindowGlassColor}"/>
-
-            <!-- PopupWindow Style -->
+            <!-- App-specific style -->
             <Style TargetType="Window" x:Key="PopupWindowStyle">
                 <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-            </Style>
-
-            <!-- Button Style -->
-            <Style TargetType="Button">
-                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}" />
-                <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}" />
-                <Setter Property="Padding" Value="12,6" />
-                <Setter Property="Margin" Value="6,0" />
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}" />
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="6"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  RecognizesAccessKey="True"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <!-- Hover -->
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                                <!-- Pressed -->
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentPressedBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                                <!-- Disabled -->
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="border" Property="Background" Value="#777777"/>
-                                    <Setter Property="Foreground" Value="#DDDDDD"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- ListBox Style -->
-            <Style TargetType="ListBox">
-                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-                <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
-            </Style>
-
-            <!-- ListBoxItem Style -->
-            <Style TargetType="ListBoxItem">
-                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}" />
-                <Setter Property="Padding" Value="6,4"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="border"
-                                    Background="Transparent"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <!-- Hover -->
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                                <!-- Selected -->
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentPressedBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Trigger>
-                                <!-- Disabled -->
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Foreground" Value="#777777"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
             </Style>
 
         </ResourceDictionary>
