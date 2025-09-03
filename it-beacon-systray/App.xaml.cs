@@ -1,11 +1,8 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
-using it_beacon_systray.Helpers;
+using it_beacon_common.Helpers; // Correctly using the common library's helper
 using it_beacon_systray.Views;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace it_beacon_systray
@@ -22,30 +19,24 @@ namespace it_beacon_systray
         {
             base.OnStartup(e);
 
-            // Apply theme once at startup
+            // Apply theme once at startup from the common library
             ThemeHelper.ApplyTheme();
 
             // Start listening for future changes
-            ThemeHelper.ListenForThemeChanges();
-
-            // preload popup window
-            _popupWindow = new PopupWindow();
-
-            // load tray icon, wire events, etc...
+            ThemeHelper.RegisterThemeChangeListener();
 
             // Preload popup window
             _popupWindow = new PopupWindow();
 
-            // preload tray icon resource
+            // Preload tray icon resource
             var trayIcon = (TaskbarIcon)FindResource("TrayIcon");
 
-            // load embedded icon from it-beacon-common
+            // Load embedded icon from it-beacon-common
             var iconUri = new Uri("pack://application:,,,/it-beacon-common;component/Assets/Icons/beacon.ico");
             trayIcon.IconSource = new BitmapImage(iconUri);
-
             _notifyIcon = trayIcon;
 
-            // wire up events
+            // Wire up events
             _notifyIcon.TrayLeftMouseUp += (s, ev) => TogglePopup();
             _notifyIcon.TrayRightMouseUp += (s, ev) => TogglePopup();
             _notifyIcon.TrayMouseDoubleClick += (s, ev) => OpenNotepad();
@@ -77,24 +68,5 @@ namespace it_beacon_systray
             _notifyIcon?.Dispose();
             base.OnExit(e);
         }
-
-        private void ApplyTheme()
-        {
-            bool isLight = ThemeHelper.IsLightTheme;
-
-            Resources["PopupBackgroundBrush"] = isLight
-                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White)
-                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(45, 45, 48));
-
-            Resources["PopupForegroundBrush"] = isLight
-                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Black)
-                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White);
-
-            Resources["PopupBorderBrush"] = isLight
-                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 220, 220))
-                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(68, 68, 68));
-        }
-
     }
-
 }
