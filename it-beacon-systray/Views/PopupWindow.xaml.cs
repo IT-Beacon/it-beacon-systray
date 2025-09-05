@@ -38,5 +38,25 @@ namespace it_beacon_systray.Views
             this.Left = workArea.Right - this.Width - 10; // 10px margin
             this.Top = workArea.Bottom - this.Height - 10; // 10px margin
         }
+
+        // --- NEW EVENT HANDLERS ---
+
+        private void CompanyPortal_Click(object sender, RoutedEventArgs e)
+        {
+            // Add logic to open Company Portal here
+            MessageBox.Show("Company Portal button clicked!");
+        }
+
+        private void Terminal_Click(object sender, RoutedEventArgs e)
+        {
+            // Add logic to open Windows Terminal here
+            MessageBox.Show("Terminal button clicked!");
+        }
+
+        private void Homepage_Click(object sender, RoutedEventArgs e)
+        {
+            // Add logic to open the UNT CVAD IT Homepage here
+            MessageBox.Show("Homepage button clicked!");
+        }
     }
 }

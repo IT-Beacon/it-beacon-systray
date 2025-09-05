@@ -49,13 +49,34 @@
             <!-- Separator between Header and Main Content -->
             <Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
+            <!-- Separator above the button bar -->
+            <Separator Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
+
+            <!-- Row 2: Button Bar -->
+            <UniformGrid Grid.Row="2" Columns="3" Margin="0,5,0,10">
+                <!-- Company Portal Button -->
+                <Button Style="{StaticResource IconButtonStyle}" Click="CompanyPortal_Click">
+                    <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE8B1;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
+                </Button>
+
+                <!-- Windows Terminal Button -->
+                <Button Style="{StaticResource IconButtonStyle}" Click="Terminal_Click">
+                    <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE756;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
+                </Button>
+
+                <!-- UNT CVAD IT Homepage Button -->
+                <Button Style="{StaticResource IconButtonStyle}" Click="Homepage_Click">
+                    <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE774;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
+                </Button>
+            </UniformGrid>
+
 
             <!-- Row 1 (Main Content) and Row 2 (Footer) are currently empty and will take up the available space -->
 
             <!-- This border creates the tinted background for the settings row -->
             <Border Grid.Row="3" 
                     Background="{DynamicResource FooterBackgroundBrush}" 
-                    Margin="-15,-5,-15,-15" 
+                    Margin="-15,0,-15,-15" 
                     CornerRadius="0,0,7,7">
 
                 <!-- This new Grid acts as the single child for the Border -->
