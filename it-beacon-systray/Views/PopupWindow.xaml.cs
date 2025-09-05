@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
+using System.DirectoryServices.AccountManagement; // Added for retrieving user display name
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace it_beacon_systray.Views
@@ -21,8 +25,22 @@ namespace it_beacon_systray.Views
             this.Deactivated += (s, e) => this.Hide();
             this.IsVisibleChanged += PopupWindow_IsVisibleChanged;
 
-            // Set the static hostname from the system environment
+            
+            // Set static values on startup
             HostnameValue.Text = Environment.MachineName;
+            SetUserDisplayName(); 
+
+            // Set the user's display name
+            try
+            {
+                // This gets the full name (e.g., "John Doe") instead of just the username
+                UserNameValue.Text = UserPrincipal.Current.DisplayName;
+            }
+            catch (Exception)
+            {
+                // Fallback to the simpler username if the display name can't be found
+                UserNameValue.Text = Environment.UserName;
+            }
 
             // Initialize the timer for the live uptime counter
             _uptimeTimer = new DispatcherTimer
@@ -31,6 +49,23 @@ namespace it_beacon_systray.Views
             };
             _uptimeTimer.Tick += UptimeTimer_Tick;
         }
+
+        /// <summary>
+        /// Retrieves and sets the current user's full display name from Active Directory.
+        /// </summary>
+        private void SetUserDisplayName()
+        {
+            try
+            {
+                UserNameValue.Text = UserPrincipal.Current.DisplayName;
+            }
+            catch (Exception)
+            {
+                // Fallback to the simple user name if the full name can't be retrieved
+                UserNameValue.Text = Environment.UserName;
+            }
+        }
+
 
         /// <summary>
         /// Toggles the visibility of the popup window. This is the missing method.
@@ -83,7 +118,7 @@ namespace it_beacon_systray.Views
         /// <summary>
         /// Handles the timer's tick event to update the uptime display every second.
         /// </summary>
-        private void UptimeTimer_Tick(object sender, EventArgs e)
+        private void UptimeTimer_Tick(object? sender, EventArgs e)
         {
             UpdateUptimeText();
         }

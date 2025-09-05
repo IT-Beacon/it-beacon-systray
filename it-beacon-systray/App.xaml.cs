@@ -35,10 +35,10 @@ namespace it_beacon_systray
         public class Asset
         {
             [JsonPropertyName("Hostname")]
-            public string Hostname { get; set; }
+            public string Hostname { get; set; } = string.Empty;
 
             [JsonPropertyName("RiskScore")]
-            public string RiskScore { get; set; }
+            public string RiskScore { get; set; } = string.Empty;
         }
 
         // --- END OF NESTED CLASSES ---
@@ -92,7 +92,7 @@ namespace it_beacon_systray
         }
 
         /// <summary>
-        /// Intelligently determines the IP to display and builds a detailed, multi-line tooltip using fast, local lookups.
+        /// Intelligently determines the IP to display and builds a simplified tooltip.
         /// </summary>
         public async Task FetchAndSetIpAddressAsync()
         {
@@ -100,41 +100,24 @@ namespace it_beacon_systray
 
             try
             {
-                // --- Gather all network information first ---
-
-                // 1. Get the primary local IPv4 address
-                var localIp = NetworkInterface.GetAllNetworkInterfaces()
-                    .FirstOrDefault(ni => ni.OperationalStatus == OperationalStatus.Up && ni.NetworkInterfaceType != NetworkInterfaceType.Loopback && ni.GetIPProperties().GatewayAddresses.Any())
-                    ?.GetIPProperties().UnicastAddresses
-                    .FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
-
-                // 2. Get the public IP from an external service
-                var publicIpString = await ApiHelper.Client.GetStringAsync("https://api.ipify.org");
-
-                // 3. Get the local FQDN reliably and quickly from IPGlobalProperties
-                string localFqdn = "N/A";
-                try
-                {
-                    var properties = IPGlobalProperties.GetIPGlobalProperties();
-                    // Append the domain name only if it's not empty, to form the FQDN.
-                    localFqdn = string.IsNullOrEmpty(properties.DomainName)
-                        ? properties.HostName
-                        : $"{properties.HostName}.{properties.DomainName}";
-                }
-                catch
-                {
-                    // Fallback in case IPGlobalProperties fails
-                    localFqdn = Dns.GetHostName();
-                }
-
-
-                // 4. Get the active connection type
+                // --- Gather network information ---
                 string connectionType = "Unknown";
+
+                // 1. Find the primary active network interface
                 var activeInterface = NetworkInterface.GetAllNetworkInterfaces()
-                    .FirstOrDefault(i => i.OperationalStatus == OperationalStatus.Up && i.NetworkInterfaceType != NetworkInterfaceType.Loopback && i.GetIPProperties().GatewayAddresses.Any());
+                    .FirstOrDefault(ni => ni.OperationalStatus == OperationalStatus.Up &&
+                                           ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                                           ni.GetIPProperties().GatewayAddresses.Any());
+
+                IPAddress? localIp = null;
 
                 if (activeInterface != null)
                 {
+                    var ipProps = activeInterface.GetIPProperties();
+                    localIp = ipProps.UnicastAddresses
+                        .FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)?.Address;
+
+                    // 2. Get connection type from the active interface
                     connectionType = activeInterface.NetworkInterfaceType switch
                     {
                         NetworkInterfaceType.Ethernet or NetworkInterfaceType.GigabitEthernet => "Ethernet",
@@ -142,6 +125,11 @@ namespace it_beacon_systray
                         _ => activeInterface.NetworkInterfaceType.ToString(),
                     };
                 }
+
+
+                // 3. Get the public IP from an external service
+                var publicIpString = await ApiHelper.Client.GetStringAsync("https://api.ipify.org");
+
 
                 // --- Now, update the UI based on the gathered information ---
 
@@ -153,16 +141,13 @@ namespace it_beacon_systray
                     _popupWindow.NetworkValue.Text = localIp.ToString();
 
                     tooltipBuilder.AppendLine($"Public IP: {publicIpString.Trim()}");
-                    tooltipBuilder.AppendLine($"Connection: {connectionType}");
-                    tooltipBuilder.Append($"FQDN: {localFqdn}");
+                    tooltipBuilder.Append($"Connection: {connectionType}");
                 }
                 else
                 {
                     // --- ON A PUBLIC NETWORK ---
                     _popupWindow.NetworkValue.Text = publicIpString.Trim();
-
-                    tooltipBuilder.AppendLine($"Connection: {connectionType}");
-                    tooltipBuilder.Append($"FQDN: {localFqdn}");
+                    tooltipBuilder.Append($"Connection: {connectionType}");
                 }
 
                 _popupWindow.NetworkBorder.ToolTip = tooltipBuilder.ToString();

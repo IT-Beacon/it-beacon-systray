@@ -31,7 +31,7 @@
             <!-- Row 0: Header -->
             <DockPanel Grid.Row="0" Margin="5,0,5,10" VerticalAlignment="Center">
                 <!-- Avatar Icon (aligned to the right) -->
-                <Image DockPanel.Dock="Right" 
+                <Image x:Name="AvatarImage" DockPanel.Dock="Right" 
                        Width="32" Height="32"
                        Source="https://picsum.photos/32 ">
                     <Image.Clip>
@@ -40,7 +40,7 @@
                 </Image>
 
                 <!-- User Name Text -->
-                <TextBlock Text="CVAD Shared Student" 
+                <TextBlock x:Name="UserNameValue" Text="CVAD Shared Student" 
                            Foreground="{DynamicResource PopupForegroundBrush}"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"/>
