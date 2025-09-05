@@ -49,6 +49,71 @@
             <!-- Separator between Header and Main Content -->
             <Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
+            <StackPanel Grid.Row="1" Margin="10,15,10,15">
+
+                <!-- HOSTNAME -->
+                <TextBlock Text="HOSTNAME" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                <Border Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
+                    <TextBlock x:Name="HostnameValue" Text="loading...">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="FontSize" Value="20"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <!-- IP -->
+                <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
+                    <TextBlock x:Name="NetworkValue" Text="loading...">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="FontSize" Value="20"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <!-- RISKSCORE -->
+                <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
+                    <TextBlock x:Name="RiskScoreValue" Text="loading...">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="FontSize" Value="20"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+
+                <!-- UPTIME -->
+                <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+
+                <!-- LOCATION -->
+                <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                <TextBlock Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+            </StackPanel>
+            
             <!-- Separator above the button bar -->
             <Separator Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 

@@ -1,30 +1,121 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace it_beacon_systray.Views
 {
     /// <summary>
     /// Interaction logic for PopupWindow.xaml
     /// </summary>
+    ///
+
     public partial class PopupWindow : Window
     {
+        private readonly DispatcherTimer _uptimeTimer;
         public PopupWindow()
         {
             InitializeComponent();
-
-            // Close popup when it loses focus
             this.Deactivated += (s, e) => this.Hide();
+            this.IsVisibleChanged += PopupWindow_IsVisibleChanged;
+
+            // Set the static hostname from the system environment
+            HostnameValue.Text = Environment.MachineName;
+
+            // Initialize the timer for the live uptime counter
+            _uptimeTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _uptimeTimer.Tick += UptimeTimer_Tick;
+        }
+
+        /// <summary>
+        /// Toggles the visibility of the popup window. This is the missing method.
+        /// </summary>
+        public void ToggleVisibility()
+        {
+            if (this.IsVisible)
+            {
+                this.Hide();
+            }
+            else
+            {
+                PositionNearTray();
+                this.Show();
+                this.Activate();
+            }
+        }
+
+        /// <summary>
+        /// This event handler is called whenever the popup window is shown or hidden.
+        /// </summary>
+        private async void PopupWindow_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is true && Application.Current is App app)
+            {
+                // Refresh data when the window is opened
+                await app.FetchAndSetIpAddressAsync();
+
+                // Set the tooltip for the risk score
+                if (app.LastRiskScoreUpdate.HasValue)
+                {
+                    RiskScoreBorder.ToolTip = $"Last updated: {app.LastRiskScoreUpdate.Value:g}";
+                }
+                else
+                {
+                    RiskScoreBorder.ToolTip = "Not updated yet.";
+                }
+
+                // Start the live uptime timer and update it immediately
+                UpdateUptimeText();
+                _uptimeTimer.Start();
+            }
+            else
+            {
+                // Stop the timer when the window is hidden to save resources
+                _uptimeTimer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Handles the timer's tick event to update the uptime display every second.
+        /// </summary>
+        private void UptimeTimer_Tick(object sender, EventArgs e)
+        {
+            UpdateUptimeText();
+        }
+
+        /// <summary>
+        /// Calculates and formats the system uptime and updates the UI.
+        /// </summary>
+        private void UpdateUptimeText()
+        {
+            // Get the system uptime from the environment ticks
+            var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+            // Format the timespan to show days, hours, minutes, and seconds
+            UptimeValue.Text = $"{(int)uptime.TotalDays}:{uptime.Hours:00}:{uptime.Minutes:00}:{uptime.Seconds:00}";
+        }
+
+        /// <summary>
+        /// A reusable method to update the risk score's tooltip with the latest timestamp.
+        /// </summary>
+        private void UpdateRiskScoreTooltip()
+        {
+            if (Application.Current is App app)
+            {
+                if (app.LastRiskScoreUpdate.HasValue)
+                {
+                    RiskScoreBorder.ToolTip = $"Last updated: {app.LastRiskScoreUpdate.Value:g}";
+                }
+                else
+                {
+                    RiskScoreBorder.ToolTip = "Not updated yet.";
+                }
+            }
         }
 
         /// <summary>
@@ -58,5 +149,46 @@ namespace it_beacon_systray.Views
             // Add logic to open the UNT CVAD IT Homepage here
             MessageBox.Show("Homepage button clicked!");
         }
+
+        /// <summary>
+        /// Copies the text from the TextBlock inside the clicked Border to the clipboard.
+        /// </summary>
+        private async void CopyValue_Click(object sender, MouseButtonEventArgs e)
+        {
+            // The sender is the Border, and its Child is the TextBlock
+            if (sender is Border border && border.Child is TextBlock textBlock)
+            {
+                // Temporarily store the original text
+                var originalText = textBlock.Text;
+
+                if (!string.IsNullOrEmpty(originalText))
+                {
+                    // Copy to clipboard
+                    Clipboard.SetText(originalText);
+
+                    // Provide visual feedback by changing the text
+                    textBlock.Text = "Copied!";
+                    await Task.Delay(1500); // Wait for 1.5 seconds
+
+                    // Restore the original text
+                    textBlock.Text = originalText;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fetches data from a JSON endpoint and updates the risk score value.
+        /// </summary>
+        private async void UpdateValue_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (Application.Current is App app)
+            {
+                await app.FetchAndSetRiskScoreAsync();
+                // After the update is complete, refresh the tooltip immediately.
+                UpdateRiskScoreTooltip();
+            }
+        }
+
+        
     }
 }
