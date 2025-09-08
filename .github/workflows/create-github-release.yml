@@ -1,0 +1,47 @@
+name: Create GitHub Release
+
+# This workflow runs whenever you push a tag that starts with 'v' (e.g., v1.0.0, v1.2.3)
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write # This permission is required to create a release and upload assets
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET 8 SDK and configure access to GitHub Packages
+      # This is needed to restore your it-beacon-common dependency
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          source-url: https://nuget.pkg.github.com/IT-Beacon/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Restore all project dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Publish the application as a self-contained package
+      # This creates a folder with the .exe and all required .dlls
+      - name: Publish application
+        run: dotnet publish ./it-beacon-systray/it-beacon-systray.csproj -c Release -r win-x64 --self-contained true -o ./publish
+
+      # 5. Archive the published files into a single .zip file
+      - name: Archive release
+        run: Compress-Archive -Path ./publish/* -DestinationPath it-beacon-systray.zip
+
+      # 6. Create the GitHub Release and upload the .zip file as an asset
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: it-beacon-systray.zip

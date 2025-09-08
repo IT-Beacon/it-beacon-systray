@@ -171,7 +171,8 @@
                                 Cursor="Hand" 
                                 Foreground="{DynamicResource PopupForegroundBrush}" 
                                 Opacity="0.7"
-                                Padding="5">
+                                Padding="5"
+                                ToolTip="Coming soon maybe">
                             <!-- Increased FontSize and added Padding to the parent Button -->
                             <TextBlock FontFamily="Segoe Fluent Icons"
                                        Text="&#xE713;"
