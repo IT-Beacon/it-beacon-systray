@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic.ApplicationServices;
 using System;
+using System.Diagnostics;
 using System.DirectoryServices.AccountManagement; // Added for retrieving user display name
 using System.IO;
 using System.Threading.Tasks;
@@ -93,6 +94,7 @@ namespace it_beacon_systray.Views
             {
                 // Refresh data when the window is opened
                 await app.FetchAndSetIpAddressAsync();
+                await app.FetchSnipeItDataAsync(); 
 
                 // Set the tooltip for the risk score
                 if (app.LastRiskScoreUpdate.HasValue)
@@ -101,8 +103,10 @@ namespace it_beacon_systray.Views
                 }
                 else
                 {
-                    RiskScoreBorder.ToolTip = "Not updated yet.";
+                    RiskScoreBorder.ToolTip = "Not updated yet."; 
                 }
+
+                UpdateRiskScoreTimestamp(); 
 
                 // Start the live uptime timer and update it immediately
                 UpdateUptimeText();
@@ -154,6 +158,43 @@ namespace it_beacon_systray.Views
         }
 
         /// <summary>
+        /// Calculates a human-readable relative time and updates the RiskScore timestamp display.
+        /// </summary>
+        private void UpdateRiskScoreTimestamp()
+        {
+            if (Application.Current is not App app || !app.LastRiskScoreUpdate.HasValue)
+            {
+                RiskScoreTimestamp.Text = string.Empty;
+                return;
+            }
+
+            var timeSinceUpdate = DateTime.Now - app.LastRiskScoreUpdate.Value;
+
+            string relativeTime;
+            if (timeSinceUpdate.TotalSeconds < 60)
+            {
+                relativeTime = "just now";
+            }
+            else if (timeSinceUpdate.TotalMinutes < 60)
+            {
+                int minutes = (int)timeSinceUpdate.TotalMinutes;
+                relativeTime = $"{minutes} minute{(minutes > 1 ? "s" : "")} ago";
+            }
+            else if (timeSinceUpdate.TotalHours < 24)
+            {
+                int hours = (int)timeSinceUpdate.TotalHours;
+                relativeTime = $"{hours} hour{(hours > 1 ? "s" : "")} ago";
+            }
+            else
+            {
+                int days = (int)timeSinceUpdate.TotalDays;
+                relativeTime = $"{days} day{(days > 1 ? "s" : "")} ago";
+            }
+
+            RiskScoreTimestamp.Text = $"({relativeTime})";
+        }
+
+        /// <summary>
         /// Positions the popup just above the system tray (bottom-right).
         /// </summary>
         public void PositionNearTray()
@@ -167,22 +208,40 @@ namespace it_beacon_systray.Views
 
         // --- NEW EVENT HANDLERS ---
 
-        private void CompanyPortal_Click(object sender, RoutedEventArgs e)
+        private void QuickButton1_Click(object sender, RoutedEventArgs e)
         {
-            // Add logic to open Company Portal here
-            MessageBox.Show("Company Portal button clicked!");
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-chat") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+            }
         }
 
-        private void Terminal_Click(object sender, RoutedEventArgs e)
+        private void QuickButton2_Click(object sender, RoutedEventArgs e)
         {
-            // Add logic to open Windows Terminal here
-            MessageBox.Show("Terminal button clicked!");
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-sharepoint") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+            }
         }
 
-        private void Homepage_Click(object sender, RoutedEventArgs e)
+        private void QuickButton3_Click(object sender, RoutedEventArgs e)
         {
-            // Add logic to open the UNT CVAD IT Homepage here
-            MessageBox.Show("Homepage button clicked!");
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://itservices.cvad.unt.edu") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -221,9 +280,10 @@ namespace it_beacon_systray.Views
                 await app.FetchAndSetRiskScoreAsync();
                 // After the update is complete, refresh the tooltip immediately.
                 UpdateRiskScoreTooltip();
+                UpdateRiskScoreTimestamp(); 
             }
         }
 
-        
+
     }
 }
