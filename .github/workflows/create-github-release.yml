@@ -27,13 +27,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # This step is now updated to create a trimmed, single-file executable
+      # This step now publishes as a single file WITHOUT trimming to avoid the build error.
       - name: Publish application
         run: >
           dotnet publish ./it-beacon-systray/it-beacon-systray.csproj 
           -c Release -r win-x64 --self-contained true 
           -p:PublishSingleFile=true 
-          -p:PublishTrimmed=true 
           -o ./publish
 
       - name: Archive release
