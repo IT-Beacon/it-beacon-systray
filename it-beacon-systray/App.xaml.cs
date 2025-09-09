@@ -3,16 +3,19 @@ using it_beacon_common.Helpers;
 using it_beacon_systray.Views;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Management;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Management;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -24,7 +27,11 @@ namespace it_beacon_systray
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    { 
+    {
+        // A unique name for the Mutex to ensure only one instance of the app runs per user.
+        private const string AppMutexName = "IT-BEACON-SYSTRAY-INSTANCE";
+        private static Mutex? _mutex;
+
         // --- IMPORTANT: PASTE YOUR SNIPE-IT API KEY HERE ---
         private readonly string _snipeItApiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmNkMTk1OGEwZDc1MTNjNTEzZWQ0NThlZTk5OWE5NmVhYjgwM2U4MTEzNGY4MWE3ZmM1ZGI1MjhiODMzNDE2YWQ4YzA5ODVkYTgyNGM0OTQiLCJpYXQiOjE3NTczNjQzMDAuNzU4NzU1LCJuYmYiOjE3NTczNjQzMDAuNzU4NzU4LCJleHAiOjIzODg1MTYzMDAuNzQwNTQyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.MYtoUjhKXH4k73NqHmtbs657nt06B6bweIceKzQCWDzcWDDsbnkACwDSzYPpw6HLuyTQPjv8bsNS82nlO4GsIPt2mqJZR4MLWv8bwEMFzxuyAqJg5uwZFOPVZO0wEFjidI5Gg_n8ke4V8EztqTEh8wQbM8d2qvqjiBtF9auItfYNjWLthWXYLdTXsfeH6bCvQ3Oh5NsPdrNlkGq7iN2DF1kKWGrVVCKq1hfYEv0fTqybRrPAVpzIhkI0fVAKkAlVpR2_7BWr6kLDzuhi3iztSyIaEthFpgITSpqMFz3NYaGuVloQvl-D5I4a8sD70PPmj7R0RjjV74FLHDmk7O2AEY-ze4AtMxEes3Wh9DFuf6Jzsb4jNIYjw7CvPBLBy34ClhD9XKXL4xEbetlMq9znQOfzuj6i70Gbp0KAm7BTWkfaLurNPDjWbZIejH1-trLhKwih1VxlVq7kl52M-mH0HqI-oW22GNxQUyvPYwPKoO3sl0B71W4ho5illHQFDtGlbxfGJ11RG6SrMrLwVLih_wmjWIPSBdok4aknA4Tu9nI2Ux3qJbKTcoArgRZVcg7Mof0gqdxteM7tv5jDu_XhAmHn3Oq1RmTb848w4iqlXeT1sZ4dUXUYL-vaaalMMEhp4yY0tUaqqfKlXIFeLD1TQoimgoLUTBzq3eM9pRLKQbM";
         // ---
@@ -51,6 +58,7 @@ namespace it_beacon_systray
 
         // --- END OF NESTED CLASSES ---
 
+        // These are now class-level fields, making them accessible throughout the App class.
         private TaskbarIcon? _notifyIcon;
         private PopupWindow? _popupWindow;
         private DispatcherTimer? _riskScoreTimer;
@@ -60,6 +68,39 @@ namespace it_beacon_systray
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            // --- NEW: SINGLE INSTANCE CHECK USING MUTEX ---
+            _mutex = new Mutex(true, AppMutexName, out bool createdNew);
+
+            if (!createdNew)
+            {
+                // Another instance is already running. Shut down this new instance.
+                Debug.WriteLine("[App.OnStartup] Another instance is already running. Shutting down.");
+                Application.Current.Shutdown();
+                return;
+            }
+            // --- END OF SINGLE INSTANCE CHECK ---
+
+            // These handlers will catch any unhandled exceptions and restart the application.
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            this.DispatcherUnhandledException += App_DispatcherUnhandledException;
+            // --- END OF CRASH DETECTION ---
+
+            // --- NEW STARTUP LOGIC ---
+            using (var identity = WindowsIdentity.GetCurrent())
+            {
+                if (identity.IsSystem)
+                {
+                    // If running as SYSTEM, launch into user session and exit this instance.
+                    Debug.WriteLine("[App.OnStartup] Running as SYSTEM. Attempting to relaunch in user session.");
+                    ProcessLauncher.StartProcessInUserSession();
+                    Application.Current.Shutdown();
+                    return; // Stop execution of the SYSTEM process
+                }
+            }
+            // --- END OF NEW LOGIC ---
+
+            // If not running as SYSTEM, proceed with normal application startup.
+            Debug.WriteLine("[App.OnStartup] Running as standard user. Initializing application.");
             base.OnStartup(e);
 
             // --- FIX FOR DARK MODE ---
@@ -85,6 +126,52 @@ namespace it_beacon_systray
             };
             _riskScoreTimer.Tick += async (s, args) => await FetchAndSetRiskScoreAsync();
             _riskScoreTimer.Start();
+        }
+
+        /// <summary>
+        /// Handles exceptions that occur on the main UI thread.
+        /// </summary>
+        private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            HandleUnhandledException(e.Exception);
+            e.Handled = true; // Prevents the default Windows crash dialog
+        }
+
+        /// <summary>
+        /// Handles exceptions that occur on any thread (background tasks, etc.).
+        /// </summary>
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                HandleUnhandledException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Central logic for logging the crash and restarting the application.
+        /// </summary>
+        private void HandleUnhandledException(Exception ex)
+        {
+            // Log the exception details for debugging purposes
+            Debug.WriteLine($"[FATAL CRASH] An unhandled exception occurred: {ex.Message}\n{ex.StackTrace}");
+
+            // Attempt to restart the application
+            try
+            {
+                string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
+                if (!string.IsNullOrEmpty(exePath))
+                {
+                    Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
+                }
+            }
+            catch (Exception restartEx)
+            {
+                Debug.WriteLine($"[FATAL CRASH] Failed to restart the application: {restartEx.Message}");
+            }
+
+            // Shut down the crashed instance
+            Application.Current.Shutdown();
         }
 
         private void InitializeTrayIcon()
@@ -302,13 +389,6 @@ namespace it_beacon_systray
             _notifyIcon.IconSource = new BitmapImage(iconUri);
         }
 
-        protected override void OnExit(ExitEventArgs e)
-        {
-            _riskScoreTimer?.Stop();
-            _notifyIcon?.Dispose();
-            base.OnExit(e);
-        }
-
         private void TogglePopup()
         {
             if (_popupWindow == null) return;
@@ -323,6 +403,21 @@ namespace it_beacon_systray
                 _popupWindow.Show();
                 _popupWindow.Activate();
             }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Stop the timer to prevent it from ticking after shutdown.
+            _riskScoreTimer?.Stop();
+
+            // Dispose of the tray icon to remove it from the system tray.
+            _notifyIcon?.Dispose();
+
+            // Release and dispose of the Mutex to allow a new instance to start.
+            _mutex?.ReleaseMutex();
+            _mutex?.Dispose();
+
+            base.OnExit(e);
         }
 
 
