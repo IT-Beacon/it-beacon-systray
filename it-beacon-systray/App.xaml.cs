@@ -47,14 +47,20 @@ namespace it_beacon_systray
             public static readonly HttpClient Client = new HttpClient();
         }
 
-        public class Asset
+        // Models for the new Risk Score JSON structure
+        public class SyncedAssetsResponse
         {
-            [JsonPropertyName("Hostname")]
+            public List<SyncedAsset>? assets { get; set; }
+        }
+        public class SyncedAsset
+        {
+            [JsonPropertyName("nama")]
             public string Hostname { get; set; } = string.Empty;
 
-            [JsonPropertyName("RiskScore")]
-            public string RiskScore { get; set; } = string.Empty;
+            [JsonPropertyName("nilai")]
+            public int RiskScore { get; set; }
         }
+        // ---
 
         // --- END OF NESTED CLASSES ---
 
@@ -327,35 +333,39 @@ namespace it_beacon_systray
         public async Task FetchAndSetRiskScoreAsync()
         {
             if (_popupWindow == null) return;
-
             var currentHostname = _popupWindow.HostnameValue.Text;
             _popupWindow.RiskScoreValue.Text = "Refreshing...";
-
             try
             {
-                var jsonResponse = await ApiHelper.Client.GetStringAsync("https://public.cvad.unt.edu/rapid7/cvad-tagged-assets.json");
-                var assets = JsonSerializer.Deserialize<Asset[]>(jsonResponse);
-                var matchingAsset = assets?.FirstOrDefault(a => a.Hostname.Equals(currentHostname, StringComparison.OrdinalIgnoreCase));
+                // Updated URL
+                var jsonResponse = await ApiHelper.Client.GetStringAsync("https://itservices.cvad.unt.edu/it-tray/synced-assets-mini.json");
 
-                if (matchingAsset != null && int.TryParse(matchingAsset.RiskScore, out int score))
+                // Deserialize into the new root object
+                var responseData = JsonSerializer.Deserialize<SyncedAssetsResponse>(jsonResponse);
+
+                // Find the matching asset using the new property names
+                var matchingAsset = responseData?.assets?.FirstOrDefault(a => a.Hostname.Equals(currentHostname, StringComparison.OrdinalIgnoreCase));
+
+                if (matchingAsset != null)
                 {
+                    // The 'nilai' property is already an integer, so no parsing is needed
+                    int score = matchingAsset.RiskScore;
                     _popupWindow.RiskScoreValue.Text = score.ToString("N0");
                     UpdateTrayIcon(score);
-                    // Set the timestamp on successful update.
                     LastRiskScoreUpdate = DateTime.Now;
                 }
                 else
                 {
                     _popupWindow.RiskScoreValue.Text = "Not Found";
                     UpdateTrayIcon(-1);
-                    LastRiskScoreUpdate = DateTime.Now; // Also update timestamp on a "not found" result
+                    LastRiskScoreUpdate = DateTime.Now;
                 }
             }
             catch (Exception)
             {
                 _popupWindow.RiskScoreValue.Text = "Error";
                 UpdateTrayIcon(-1);
-                LastRiskScoreUpdate = DateTime.Now; // Also update timestamp on error
+                LastRiskScoreUpdate = DateTime.Now;
             }
         }
 
