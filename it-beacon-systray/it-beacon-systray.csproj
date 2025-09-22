@@ -17,7 +17,7 @@
 	
   <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
-    <PackageReference Include="it-beacon-common" Version="0.1.0-ci.45" />
+    <PackageReference Include="it-beacon-common" Version="0.1.0-ci.47" />
 	<!-- This is the correct way to add the reference for AccountManagement -->
 	<PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
 	<PackageReference Include="System.Management" Version="9.0.8" />

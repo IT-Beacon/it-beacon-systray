@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -284,6 +285,35 @@ namespace it_beacon_systray.Views
             }
         }
 
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                // Set the placement target to the button itself
+                button.ContextMenu.PlacementTarget = button;
+                // Set the placement mode to open above the button
+                button.ContextMenu.Placement = PlacementMode.Top;
+                // Open the context menu
+                button.ContextMenu.IsOpen = true;
+            }
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Open settings window
+            MessageBox.Show("Settings clicked!");
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Open about window
+            MessageBox.Show("About clicked!");
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
 
     }
 }

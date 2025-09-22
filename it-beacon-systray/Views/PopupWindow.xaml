@@ -10,7 +10,6 @@
         Focusable="True"
         Style="{StaticResource PopupWindowStyle}">
 
-    <!-- Rounded border that defines the actual window background and shape -->
     <Border CornerRadius="8"
             BorderThickness="1"
             BorderBrush="{DynamicResource PopupBorderBrush}"
@@ -19,77 +18,25 @@
         <Grid Margin="15,5,15,15">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60px"/>
-                <!-- Row 0: Header -->
                 <RowDefinition Height="*"/>
-                <!-- Row 1: Main Content Area -->
                 <RowDefinition Height="Auto"/>
-                <!-- Row 2: Separator -->
                 <RowDefinition Height="Auto"/>
-                <!-- Row 3: Settings Bar -->
             </Grid.RowDefinitions>
 
-            <!-- Row 0: Header -->
             <DockPanel Grid.Row="0" Margin="5,0,5,10" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <!-- Avatar Icon (aligned to the right)
-                <Image x:Name="AvatarImage" DockPanel.Dock="Right" 
-                       Width="32" Height="32"
-                       Source="https://picsum.photos/32 ">
-                    <Image.Clip>
-                        <EllipseGeometry Center="16,16" RadiusX="16" RadiusY="16"/>
-                    </Image.Clip>
-                </Image> -->
                 <TextBlock x:Name="HostnameValue" Text="Computer name" 
                            Foreground="{DynamicResource PopupForegroundBrush}"
                            VerticalAlignment="Center"
                            FontWeight="SemiBold"/>
             </DockPanel>
 
-            <!-- Separator between Header and Main Content -->
             <Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
-            <StackPanel Grid.Row="1" Margin="10,15,10,15">
-
-                <!-- HOSTNAME
-                <TextBlock Text="HOSTNAME" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
-                <Border Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
-                    <TextBlock x:Name="HostnameValue" Text="loading...">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-                                <Setter Property="FontSize" Value="20"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Border> -->
-
-                <!-- IP -->
-                <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
-                <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
-                    <TextBlock x:Name="NetworkValue" Text="loading...">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-                                <Setter Property="FontSize" Value="20"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="FontWeight" Value="Bold"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Border>
-
-                <!-- RISKSCORE -->
-                <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock x:Name="RiskScoreValue" Text="loading...">
+            <ScrollViewer Grid.Row="1" Margin="10,15,10,15" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                    <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
+                        <TextBlock x:Name="NetworkValue" Text="loading...">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
@@ -102,29 +49,44 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
+                    </Border>
 
-                        <TextBlock x:Name="RiskScoreTimestamp" Text="" 
-                   FontSize="12" 
-                   Foreground="{DynamicResource PopupForegroundBrush}" 
-                   Opacity="0.6"
-                   VerticalAlignment="Bottom"
-                   Margin="8,0,0,2"/>
-                    </StackPanel>
-                </Border>
+                    <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="RiskScoreValue" Text="loading...">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                        <Setter Property="FontSize" Value="20"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
 
-                <!-- UPTIME -->
-                <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                            <TextBlock x:Name="RiskScoreTimestamp" Text="" 
+                                       FontSize="12" 
+                                       Foreground="{DynamicResource PopupForegroundBrush}" 
+                                       Opacity="0.6"
+                                       VerticalAlignment="Bottom"
+                                       Margin="8,0,0,2"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- LOCATION -->
-                <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                <TextBlock x:Name="LocationValue" Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
-            </StackPanel>
-            
-            <!-- Separator above the button bar -->
+                    <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+
+                    <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <TextBlock x:Name="LocationValue" Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                </StackPanel>
+            </ScrollViewer>
+
             <Separator Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
-            <!-- Row 2: Button Bar -->
             <UniformGrid Grid.Row="2" Columns="3" Margin="0,5,0,10">
                 <Button ToolTip="Chat with Support" Style="{StaticResource IconButtonStyle}" Click="QuickButton1_Click">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xe8f2;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
@@ -136,35 +98,29 @@
 
                 <Button ToolTip="CVAD IT Homepage" Style="{StaticResource IconButtonStyle}" Click="QuickButton3_Click">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xeb41;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
-                </Button> 
+                </Button>
             </UniformGrid>
 
-
-            <!-- Row 1 (Main Content) and Row 2 (Footer) are currently empty and will take up the available space -->
-
-            <!-- This border creates the tinted background for the settings row -->
             <Border Grid.Row="3" 
                     Background="{DynamicResource FooterBackgroundBrush}" 
                     Margin="-15,0,-15,-15" 
                     CornerRadius="0,0,7,7">
 
-                <!-- This new Grid acts as the single child for the Border -->
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <!-- Separator between Main Content and Settings -->
                     <Separator Grid.Row="0" VerticalAlignment="Top" Margin="0,0,0,0" Foreground="{DynamicResource PopupBorderBrush}" Background="{x:Null}"/>
 
                     <Grid Grid.Row="1" Margin="10,10,10,10">
-                        <!-- User Name Text -->
+
                         <TextBlock x:Name="UserNameValue" Text="CVAD Shared Student" 
                                     Foreground="{DynamicResource PopupForegroundBrush}"
                                     VerticalAlignment="Center"
                                     FontWeight="SemiBold" Margin="10,0,0,0"/>
-                        
+
                         <Button HorizontalAlignment="Right" 
                                 Background="Transparent" 
                                 BorderThickness="0" 
@@ -172,8 +128,15 @@
                                 Foreground="{DynamicResource PopupForegroundBrush}" 
                                 Opacity="0.7"
                                 Padding="5"
-                                ToolTip="Coming soon maybe">
-                            <!-- Increased FontSize and added Padding to the parent Button -->
+                                ToolTip="Coming soon maybe"
+                                Click="SettingsButton_Click">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Settings" Click="Settings_Click"/>
+                                    <MenuItem Header="About" Click="About_Click"/>
+                                    <MenuItem Header="Exit" Click="Exit_Click"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
                             <TextBlock FontFamily="Segoe Fluent Icons"
                                        Text="&#xE713;"
                                        FontSize="18" FontWeight="Regular"
@@ -187,6 +150,3 @@
         </Grid>
     </Border>
 </Window>
-
-
-
