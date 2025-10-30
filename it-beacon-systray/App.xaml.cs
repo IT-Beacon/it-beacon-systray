@@ -72,6 +72,12 @@ namespace it_beacon_systray
         // Public property to store the timestamp of the last update.
         public DateTime? LastRiskScoreUpdate { get; private set; }
 
+        // --- NEW FIELDS FOR RESTART REMINDER ---
+        private ReminderOverlayWindow? _reminderWindow;
+        private int _restartDeferenceCount = 0; // Tracks "Restart Later" clicks
+        private DateTime? _restartCooldownUntil = null; // Timestamp for the cooldown
+        // ---
+
         protected override async void OnStartup(StartupEventArgs e)
         {
             // --- NEW: SINGLE INSTANCE CHECK USING MUTEX ---
@@ -131,6 +137,10 @@ namespace it_beacon_systray
                 Interval = TimeSpan.FromMinutes(30)
             };
             _riskScoreTimer.Tick += async (s, args) => await FetchAndSetRiskScoreAsync();
+            // --- MODIFIED: Add the uptime check to the existing 30-minute timer ---
+            _riskScoreTimer.Tick += CheckUptimeTrigger;
+            // ---
+
             _riskScoreTimer.Start();
         }
 
@@ -191,6 +201,105 @@ namespace it_beacon_systray
             // Wire up events
             _notifyIcon.TrayLeftMouseUp += (s, ev) => _popupWindow?.ToggleVisibility();
             _notifyIcon.TrayRightMouseUp += (s, ev) => _popupWindow?.ToggleVisibility();
+        }
+
+        /// <summary>
+        /// Checks system uptime and shows the restart reminder if uptime is >= 7 days
+        /// and the app is not on cooldown.
+        /// </summary>
+        private void CheckUptimeTrigger(object? sender, EventArgs e)
+        {
+            // 1. Don't check if window is already open
+            if (_reminderWindow != null && _reminderWindow.IsVisible)
+            {
+                return;
+            }
+
+            // 2. Check for cooldown
+            if (DateTime.Now < _restartCooldownUntil)
+            {
+                Debug.WriteLine($"[App.CheckUptimeTrigger] On cooldown. Skipping check until {_restartCooldownUntil}.");
+                return; // We are on cooldown, do nothing
+            }
+
+            var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+            // 3. Check if we need to show the reminder
+            if (uptime.TotalDays >= 7)
+            {
+                Debug.WriteLine("[App.CheckUptimeTrigger] Uptime >= 7 days. Showing reminder.");
+                ShowReminderOverlay(uptime); // Show the overlay
+            }
+            // 4. Check if we need to reset the counter (machine was restarted)
+            else if (uptime.TotalDays < 1) // Using 1 day as a safe "restarted" threshold
+            {
+                if (_restartDeferenceCount > 0 || _restartCooldownUntil.HasValue)
+                {
+                    Debug.WriteLine("[App.CheckUptimeTrigger] Uptime is low, resetting deference count and cooldown.");
+                    _restartDeferenceCount = 0;
+                    _restartCooldownUntil = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Displays the Restart Reminder Overlay window.
+        /// Can be called manually for testing.
+        /// </summary>
+        public void ShowReminderOverlay(TimeSpan? uptime = null)
+        {
+            // Ensure this always runs on the UI thread
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(() => ShowReminderOverlay(uptime));
+                return;
+            }
+
+            // If window is already open, just activate it
+            if (_reminderWindow != null && _reminderWindow.IsVisible)
+            {
+                _reminderWindow.Activate();
+                return;
+            }
+
+            // --- MODIFIED ---
+            // Uptime string is no longer generated here.
+            // The window's internal timer will handle the display.
+
+            // --- Pass the current deference count to the window ---
+            _reminderWindow = new ReminderOverlayWindow(_restartDeferenceCount); // Removed uptimeString
+
+            // Null out the reference when the window is closed
+            _reminderWindow.Closed += (s, e) => _reminderWindow = null;
+
+            _reminderWindow.Show();
+            _reminderWindow.Activate();
+        }
+
+        /// <summary>
+        /// Registers a deference request from the overlay window.
+        /// Increments the counter (normal click) or resets it to 0 (Shift-click).
+        /// Sets a 6-hour cooldown in all cases.
+        /// </summary>
+        /// <param name="isReset">True if Shift was held, resetting the counter.</param>
+        public void RegisterDeference(bool isReset)
+        {
+            if (isReset)
+            {
+                // Shift-click: Reset the counter to 0
+                _restartDeferenceCount = 0;
+                Debug.WriteLine($"[App.RegisterDeference] Deference counter reset to 0 (Shift-click).");
+            }
+            else
+            {
+                // Normal click: Increment the counter
+                _restartDeferenceCount++;
+                Debug.WriteLine($"[App.RegisterDeference] Deference registered. New count: {_restartDeferenceCount}");
+            }
+
+            // Set 6-hour cooldown regardless of bypass
+            _restartCooldownUntil = DateTime.Now.AddHours(6);
+            Debug.WriteLine($"[App.RegisterDeference] Cooldown set until: {_restartCooldownUntil}");
         }
 
         /// <summary>

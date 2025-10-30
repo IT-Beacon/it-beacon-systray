@@ -34,27 +34,10 @@
 
             <ScrollViewer Grid.Row="1" Margin="10,15,10,15" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
-                    <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
-                        <TextBlock x:Name="NetworkValue" Text="loading...">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-                                    <Setter Property="FontSize" Value="20"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Border>
-
-                    <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                    <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="RiskScoreValue" Text="loading...">
+                    <StackPanel x:Name="NETWORK_PANEL" Visibility="Visible">
+                        <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                        <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
+                            <TextBlock x:Name="NetworkValue" Text="loading...">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
@@ -67,21 +50,46 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+                        </Border>
+                    </StackPanel>
 
-                            <TextBlock x:Name="RiskScoreTimestamp" Text="" 
+                    <StackPanel x:Name="RISKSCORE_PANEL" Visibility="Visible">
+                        <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                        <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="RiskScoreValue" Text="loading...">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                            <Setter Property="FontSize" Value="20"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <TextBlock x:Name="RiskScoreTimestamp" Text="" 
                                        FontSize="12" 
                                        Foreground="{DynamicResource PopupForegroundBrush}" 
                                        Opacity="0.6"
                                        VerticalAlignment="Bottom"
                                        Margin="8,0,0,2"/>
-                        </StackPanel>
-                    </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
 
-                    <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                    <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <StackPanel x:Name="UPTIME_PANEL" Visibility="Visible">
+                        <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                        <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    </StackPanel>
 
-                    <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                    <TextBlock x:Name="LocationValue" Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <StackPanel x:Name="LOCATION_PANEL" Visibility="Visible">
+                        <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                        <TextBlock x:Name="LocationValue" Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    </StackPanel>
                 </StackPanel>
             </ScrollViewer>
 
@@ -134,7 +142,19 @@
                                 <ContextMenu>
                                     <MenuItem Header="Settings" Click="Settings_Click"/>
                                     <MenuItem Header="About" Click="About_Click"/>
-                                    <MenuItem Header="Exit" Click="Exit_Click"/>
+                                    <MenuItem Header="Test Reminder" Click="TestReminder_Click"/>
+                                    <Separator Foreground="{x:Null}" Visibility="Hidden" />
+                                    <MenuItem Click="Exit_Click" ToolTip="Only I.T. may exit this app.">
+                                        <MenuItem.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock FontFamily="Segoe Fluent Icons" 
+                                                           Text="&#xE72E;" 
+                                                           VerticalAlignment="Center" 
+                                                           Margin="0,0,8,0"/>
+                                                <TextBlock Text="Exit"/>
+                                            </StackPanel>
+                                        </MenuItem.Header>
+                                    </MenuItem>
                                 </ContextMenu>
                             </Button.ContextMenu>
                             <TextBlock FontFamily="Segoe Fluent Icons"

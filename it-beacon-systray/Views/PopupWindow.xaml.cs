@@ -310,9 +310,34 @@ namespace it_beacon_systray.Views
             MessageBox.Show("About clicked!");
         }
 
+        /// <summary>
+        /// Manually triggers the restart reminder overlay for testing.
+        /// </summary>
+        private void TestReminder_Click(object sender, RoutedEventArgs e)
+        {
+            // Call the public method on the main App class
+            (Application.Current as App)?.ShowReminderOverlay();
+        }
+
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            // Check if Ctrl, Shift, and Alt are ALL held down
+            bool isCtrlPressed = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
+            bool isShiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+            bool isAltPressed = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
+
+            if (isCtrlPressed && isShiftPressed && isAltPressed)
+            {
+                Application.Current.Shutdown();
+            }
+            //else
+            //{
+            //    // Notify the user of the correct key combination
+            //    MessageBox.Show("To exit, please hold Ctrl + Shift + Alt and click 'Exit' again.",
+            //                    "Exit Blocked",
+            //                    MessageBoxButton.OK,
+            //                    MessageBoxImage.Information);
+            //}
         }
 
     }
