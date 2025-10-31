@@ -1,6 +1,7 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
 using it_beacon_common.Helpers;
 using it_beacon_systray.Views;
+using it_beacon_common.Config;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,7 +34,7 @@ namespace it_beacon_systray
         private static Mutex? _mutex;
 
         // --- IMPORTANT: PASTE YOUR SNIPE-IT API KEY HERE ---
-        private readonly string _snipeItApiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmNkMTk1OGEwZDc1MTNjNTEzZWQ0NThlZTk5OWE5NmVhYjgwM2U4MTEzNGY4MWE3ZmM1ZGI1MjhiODMzNDE2YWQ4YzA5ODVkYTgyNGM0OTQiLCJpYXQiOjE3NTczNjQzMDAuNzU4NzU1LCJuYmYiOjE3NTczNjQzMDAuNzU4NzU4LCJleHAiOjIzODg1MTYzMDAuNzQwNTQyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.MYtoUjhKXH4k73NqHmtbs657nt06B6bweIceKzQCWDzcWDDsbnkACwDSzYPpw6HLuyTQPjv8bsNS82nlO4GsIPt2mqJZR4MLWv8bwEMFzxuyAqJg5uwZFOPVZO0wEFjidI5Gg_n8ke4V8EztqTEh8wQbM8d2qvqjiBtF9auItfYNjWLthWXYLdTXsfeH6bCvQ3Oh5NsPdrNlkGq7iN2DF1kKWGrVVCKq1hfYEv0fTqybRrPAVpzIhkI0fVAKkAlVpR2_7BWr6kLDzuhi3iztSyIaEthFpgITSpqMFz3NYaGuVloQvl-D5I4a8sD70PPmj7R0RjjV74FLHDmk7O2AEY-ze4AtMxEes3Wh9DFuf6Jzsb4jNIYjw7CvPBLBy34ClhD9XKXL4xEbetlMq9znQOfzuj6i70Gbp0KAm7BTWkfaLurNPDjWbZIejH1-trLhKwih1VxlVq7kl52M-mH0HqI-oW22GNxQUyvPYwPKoO3sl0B71W4ho5illHQFDtGlbxfGJ11RG6SrMrLwVLih_wmjWIPSBdok4aknA4Tu9nI2Ux3qJbKTcoArgRZVcg7Mof0gqdxteM7tv5jDu_XhAmHn3Oq1RmTb848w4iqlXeT1sZ4dUXUYL-vaaalMMEhp4yY0tUaqqfKlXIFeLD1TQoimgoLUTBzq3eM9pRLKQbM";
+        // TO BE REMOVED private readonly string _snipeItApiKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZmNkMTk1OGEwZDc1MTNjNTEzZWQ0NThlZTk5OWE5NmVhYjgwM2U4MTEzNGY4MWE3ZmM1ZGI1MjhiODMzNDE2YWQ4YzA5ODVkYTgyNGM0OTQiLCJpYXQiOjE3NTczNjQzMDAuNzU4NzU1LCJuYmYiOjE3NTczNjQzMDAuNzU4NzU4LCJleHAiOjIzODg1MTYzMDAuNzQwNTQyLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.MYtoUjhKXH4k73NqHmtbs657nt06B6bweIceKzQCWDzcWDDsbnkACwDSzYPpw6HLuyTQPjv8bsNS82nlO4GsIPt2mqJZR4MLWv8bwEMFzxuyAqJg5uwZFOPVZO0wEFjidI5Gg_n8ke4V8EztqTEh8wQbM8d2qvqjiBtF9auItfYNjWLthWXYLdTXsfeH6bCvQ3Oh5NsPdrNlkGq7iN2DF1kKWGrVVCKq1hfYEv0fTqybRrPAVpzIhkI0fVAKkAlVpR2_7BWr6kLDzuhi3iztSyIaEthFpgITSpqMFz3NYaGuVloQvl-D5I4a8sD70PPmj7R0RjjV74FLHDmk7O2AEY-ze4AtMxEes3Wh9DFuf6Jzsb4jNIYjw7CvPBLBy34ClhD9XKXL4xEbetlMq9znQOfzuj6i70Gbp0KAm7BTWkfaLurNPDjWbZIejH1-trLhKwih1VxlVq7kl52M-mH0HqI-oW22GNxQUyvPYwPKoO3sl0B71W4ho5illHQFDtGlbxfGJ11RG6SrMrLwVLih_wmjWIPSBdok4aknA4Tu9nI2Ux3qJbKTcoArgRZVcg7Mof0gqdxteM7tv5jDu_XhAmHn3Oq1RmTb848w4iqlXeT1sZ4dUXUYL-vaaalMMEhp4yY0tUaqqfKlXIFeLD1TQoimgoLUTBzq3eM9pRLKQbM";
         // ---
 
         // --- NESTED HELPER CLASSES ---
@@ -80,6 +81,10 @@ namespace it_beacon_systray
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            // --- NEW: Load configuration ---
+            ConfigManager.LoadConfig();
+            // ---
+
             // --- NEW: SINGLE INSTANCE CHECK USING MUTEX ---
             _mutex = new Mutex(true, AppMutexName, out bool createdNew);
 
@@ -137,10 +142,7 @@ namespace it_beacon_systray
                 Interval = TimeSpan.FromMinutes(30)
             };
             _riskScoreTimer.Tick += async (s, args) => await FetchAndSetRiskScoreAsync();
-            // --- MODIFIED: Add the uptime check to the existing 30-minute timer ---
-            _riskScoreTimer.Tick += CheckUptimeTrigger;
-            // ---
-
+            _riskScoreTimer.Tick += CheckUptimeTrigger; 
             _riskScoreTimer.Start();
         }
 
@@ -308,6 +310,13 @@ namespace it_beacon_systray
         public async Task FetchSnipeItDataAsync()
         {
             if (_popupWindow == null) return;
+            // --- NEW: Check if panel is enabled ---
+            if (ConfigManager.GetBool("/Settings/PopupWindow/ShowLocation") == false)
+            {
+                return; // Do not fetch if panel is disabled
+            }
+            // ---
+
             _popupWindow.LocationValue.Text = "Fetching...";
 
             try
@@ -326,8 +335,21 @@ namespace it_beacon_systray
                     return;
                 }
 
-                var request = new HttpRequestMessage(HttpMethod.Get, $"https://inventory.cvad.unt.edu/api/v1/hardware/byserial/{serviceTag}");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _snipeItApiKey);
+                // --- MODIFIED: Read URL and Key from ConfigManager ---
+                string snipeItUrl = ConfigManager.GetString("/Settings/SnipeIT/ApiUrl", "https://inventory.cvad.unt.edu/api/v1/hardware/byserial");
+                string snipeItApiKey = ConfigManager.GetString("/Settings/SnipeIT/ApiKey");
+
+                if (string.IsNullOrEmpty(snipeItApiKey))
+                {
+                    Debug.WriteLine("[App.FetchSnipeItDataAsync] SnipeIT API Key is missing from settings.xml");
+                    _popupWindow.LocationValue.Text = "Config Error";
+                    return;
+                }
+
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{snipeItUrl}/{serviceTag}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", snipeItApiKey);
+                // ---
+
                 request.Headers.Add("Accept", "application/json");
 
                 var response = await ApiHelper.Client.SendAsync(request);
@@ -354,6 +376,13 @@ namespace it_beacon_systray
         public async Task FetchAndSetIpAddressAsync()
         {
             if (_popupWindow == null) return;
+
+            // --- NEW: Check if panel is enabled ---
+            if (ConfigManager.GetBool("/Settings/PopupWindow/ShowNetworkInfo") == false)
+            {
+                return; // Do not fetch if panel is disabled
+            }
+            // ---
 
             try
             {
@@ -442,6 +471,14 @@ namespace it_beacon_systray
         public async Task FetchAndSetRiskScoreAsync()
         {
             if (_popupWindow == null) return;
+
+            // --- NEW: Check if panel is enabled ---
+            if (ConfigManager.GetBool("/Settings/PopupWindow/ShowRiskScore") == false)
+            {
+                return; // Do not fetch if panel is disabled
+            }
+            // ---
+
             var currentHostname = _popupWindow.HostnameValue.Text;
             _popupWindow.RiskScoreValue.Text = "Refreshing...";
             try

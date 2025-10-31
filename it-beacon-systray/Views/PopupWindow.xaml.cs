@@ -10,6 +10,10 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using it_beacon_common.Config; // --- ADD THIS ---
+using System.Windows.Data; // --- ADD THIS ---
+using System.Windows.Media; // --- ADD THIS ---
+using it_beacon_systray.Views;
 
 namespace it_beacon_systray.Views
 {
@@ -21,6 +25,9 @@ namespace it_beacon_systray.Views
     public partial class PopupWindow : Window
     {
         private readonly DispatcherTimer _uptimeTimer;
+
+        private SettingsWindow? _settingsWindow;
+
         public PopupWindow()
         {
             InitializeComponent();
@@ -44,12 +51,97 @@ namespace it_beacon_systray.Views
                 UserNameValue.Text = Environment.UserName;
             }
 
+            // --- NEW: Apply config on init ---
+            ApplyConfiguration();
+            // ---
+
             // Initialize the timer for the live uptime counter
             _uptimeTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
             };
             _uptimeTimer.Tick += UptimeTimer_Tick;
+        }
+
+        /// <summary>
+        /// Reads settings from ConfigManager and updates the UI visibility and buttons.
+        /// </summary>
+        private void ApplyConfiguration()
+        {
+            // Set panel visibility
+            NetworkInfoPanel.Visibility = ConfigManager.GetBool("/Settings/PopupWindow/ShowNetworkInfo", true)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            RiskScorePanel.Visibility = ConfigManager.GetBool("/Settings/PopupWindow/ShowRiskScore", true)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            UptimePanel.Visibility = ConfigManager.GetBool("/Settings/PopupWindow/ShowUptime", true)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            LocationPanel.Visibility = ConfigManager.GetBool("/Settings/PopupWindow/ShowLocation", true)
+                ? Visibility.Visible : Visibility.Collapsed;
+
+            // Generate Quick Shortcut buttons
+            GenerateQuickShortcutButtons();
+        }
+
+        /// <summary>
+        /// Clears and repopulates the Quick Shortcut panel from config.
+        /// </summary>
+        private void GenerateQuickShortcutButtons()
+        {
+            QUICK_SHORTCUT_PANEL.Children.Clear();
+            var shortcuts = ConfigManager.GetQuickShortcuts();
+
+            foreach (var shortcut in shortcuts)
+            {
+                var button = new Button
+                {
+                    ToolTip = shortcut.ToolTip,
+                    Tag = shortcut.Url, // Store URL in Tag for the click event
+                    Style = (Style)FindResource("IconButtonStyle")
+                };
+
+                var textBlock = new TextBlock
+                {
+                    FontFamily = new FontFamily("Segoe Fluent Icons"),
+                    Text = shortcut.Glyph,
+                    FontSize = 12,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Opacity = 0.8
+                };
+
+                // Bind the TextBlock's foreground to the button's foreground
+                var foregroundBinding = new Binding("Foreground")
+                {
+                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Button), 1)
+                };
+                textBlock.SetBinding(TextBlock.ForegroundProperty, foregroundBinding);
+
+                button.Content = textBlock;
+                button.Click += QuickShortcut_Click; // Wire up the generic click handler
+
+                QUICK_SHORTCUT_PANEL.Children.Add(button);
+            }
+        }
+
+        /// <summary>
+        /// Handles clicks for all dynamically generated shortcut buttons.
+        /// </summary>
+        private void QuickShortcut_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string url && !string.IsNullOrEmpty(url))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open the link.\n\nError: {ex.Message}");
+                }
+            }
         }
 
         /// <summary>
@@ -93,6 +185,10 @@ namespace it_beacon_systray.Views
         {
             if (e.NewValue is true && Application.Current is App app)
             {
+                // --- NEW: Re-apply config in case it changed (for future hot-reloads) ---
+                ApplyConfiguration();
+                // ---
+
                 // Refresh data when the window is opened
                 await app.FetchAndSetIpAddressAsync();
                 await app.FetchSnipeItDataAsync(); 
@@ -133,6 +229,13 @@ namespace it_beacon_systray.Views
         /// </summary>
         private void UpdateUptimeText()
         {
+            // --- NEW: Check if panel is enabled ---
+            if (UptimePanel.Visibility == Visibility.Collapsed)
+            {
+                return; // Do not calculate if panel is hidden
+            }
+            // ---
+
             // Get the system uptime from the environment ticks
             var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
 
@@ -206,44 +309,43 @@ namespace it_beacon_systray.Views
             this.Left = workArea.Right - this.Width - 10; // 10px margin
             this.Top = workArea.Bottom - this.Height - 10; // 10px margin
         }
+        
+        // NO LONGER NEW AND TO BE REMOVED SOON: These are replaced by the dynamic quick shortcut buttons.
+        //private void QuickButton1_Click(object sender, RoutedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-chat") { UseShellExecute = true });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+        //    }
+        //}
 
-        // --- NEW EVENT HANDLERS ---
+        //private void QuickButton2_Click(object sender, RoutedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-sharepoint") { UseShellExecute = true });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+        //    }
+        //}
 
-        private void QuickButton1_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-chat") { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-            }
-        }
-
-        private void QuickButton2_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-sharepoint") { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-            }
-        }
-
-        private void QuickButton3_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo("https://itservices.cvad.unt.edu") { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-            }
-        }
+        //private void QuickButton3_Click(object sender, RoutedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        Process.Start(new ProcessStartInfo("https://itservices.cvad.unt.edu") { UseShellExecute = true });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
+        //    }
+        //}
 
         /// <summary>
         /// Copies the text from the TextBlock inside the clicked Border to the clipboard.
@@ -300,8 +402,24 @@ namespace it_beacon_systray.Views
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Open settings window
-            MessageBox.Show("Settings clicked!");
+            // Check if window is already open
+            if (_settingsWindow != null && _settingsWindow.IsVisible)
+            {
+                _settingsWindow.Activate();
+            }
+            else
+            {
+                // Create new window
+                _settingsWindow = new SettingsWindow();
+
+                // Set owner to the main window (if it exists) or this popup
+                _settingsWindow.Owner = Application.Current.MainWindow ?? this;
+
+                // When closed, set our reference to null
+                _settingsWindow.Closed += (s, args) => _settingsWindow = null;
+
+                _settingsWindow.Show();
+            }
         }
 
         private void About_Click(object sender, RoutedEventArgs e)

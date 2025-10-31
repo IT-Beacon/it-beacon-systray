@@ -13,7 +13,7 @@
     <Border CornerRadius="8"
             BorderThickness="1"
             BorderBrush="{DynamicResource PopupBorderBrush}"
-            Background="{DynamicResource PopupBackgroundBrush}">
+            Background="{DynamicResource PopupBackgroundBrush}" MinHeight="306">
 
         <Grid Margin="15,5,15,15">
             <Grid.RowDefinitions>
@@ -34,7 +34,7 @@
 
             <ScrollViewer Grid.Row="1" Margin="10,15,10,15" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
-                    <StackPanel x:Name="NETWORK_PANEL" Visibility="Visible">
+                    <StackPanel x:Name="NetworkInfoPanel">
                         <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
                         <Border x:Name="NetworkBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="CopyValue_Click">
                             <TextBlock x:Name="NetworkValue" Text="loading...">
@@ -53,7 +53,7 @@
                         </Border>
                     </StackPanel>
 
-                    <StackPanel x:Name="RISKSCORE_PANEL" Visibility="Visible">
+                    <StackPanel x:Name="RiskScorePanel">
                         <TextBlock Text="RISKSCORE" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
                         <Border x:Name="RiskScoreBorder" Background="Transparent" Cursor="Hand" Margin="15,2,0,15" HorizontalAlignment="Left" MouseLeftButtonUp="UpdateValue_Click">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -81,12 +81,12 @@
                         </Border>
                     </StackPanel>
 
-                    <StackPanel x:Name="UPTIME_PANEL" Visibility="Visible">
+                    <StackPanel x:Name="UptimePanel">
                         <TextBlock Text="UPTIME" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
                         <TextBlock x:Name="UptimeValue" Text="loading..." Margin="15,2,0,15" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
                     </StackPanel>
 
-                    <StackPanel x:Name="LOCATION_PANEL" Visibility="Visible">
+                    <StackPanel x:Name="LocationPanel">
                         <TextBlock Text="LOCATION" FontWeight="Bold" Opacity="0.7" FontSize="11" Foreground="{DynamicResource PopupForegroundBrush}"/>
                         <TextBlock x:Name="LocationValue" Text="loading..." Margin="15,2,0,0" FontSize="20" Foreground="{DynamicResource PopupForegroundBrush}"/>
                     </StackPanel>
@@ -95,8 +95,8 @@
 
             <Separator Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
-            <UniformGrid Grid.Row="2" Columns="3" Margin="0,5,0,10">
-                <Button ToolTip="Chat with Support" Style="{StaticResource IconButtonStyle}" Click="QuickButton1_Click">
+            <UniformGrid x:Name="QUICK_SHORTCUT_PANEL" Grid.Row="2" Columns="3" Margin="0,5,0,10">
+                <!--<Button ToolTip="Chat with Support" Style="{StaticResource IconButtonStyle}" Click="QuickButton1_Click">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xe8f2;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
                 </Button>
 
@@ -106,7 +106,7 @@
 
                 <Button ToolTip="CVAD IT Homepage" Style="{StaticResource IconButtonStyle}" Click="QuickButton3_Click">
                     <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xeb41;" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.8"/>
-                </Button>
+                </Button>-->
             </UniformGrid>
 
             <Border Grid.Row="3" 
