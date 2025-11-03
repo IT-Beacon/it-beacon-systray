@@ -16,24 +16,12 @@
         Foreground="{DynamicResource PopupForegroundBrush}">
 
     <Window.Resources>
-        <!-- Style for the header of the settings list (Key, Value) -->
-        <Style x:Key="SettingsHeaderStyle" TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-            <Setter Property="Opacity" Value="0.8"/>
-            <Setter Property="Padding" Value="5,3"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
-        </Style>
-
-        <!-- Style for the category ListBox on the left -->
         <Style x:Key="CategoryListStyle" TargetType="ListBox">
             <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}" />
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="ItemContainerStyle" Value="{DynamicResource CategoryItemStyle}"/>
         </Style>
 
-        <!-- Style for the items in the category ListBox -->
         <Style x:Key="CategoryItemStyle" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="Margin" Value="5,2"/>
@@ -69,6 +57,70 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CancelButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -78,7 +130,6 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Column 0: Category List -->
         <Border Grid.Column="0" 
                 Background="{DynamicResource FooterBackgroundBrush}"
                 BorderBrush="{DynamicResource PopupBorderBrush}"
@@ -96,7 +147,6 @@
             </DockPanel>
         </Border>
 
-        <!-- Column 1: Grid Splitter -->
         <GridSplitter Grid.Column="1" 
                       Width="5" 
                       HorizontalAlignment="Center" 
@@ -104,7 +154,6 @@
                       Background="{DynamicResource PopupBorderBrush}"
                       Opacity="0.5"/>
 
-        <!-- Column 2: Settings Content -->
         <Border Grid.Column="2" 
                 Background="{DynamicResource PopupBackgroundBrush}"
                 Padding="15">
@@ -115,18 +164,54 @@
                            FontSize="18" FontWeight="SemiBold" 
                            Margin="0,0,0,15"/>
 
-                <ListView x:Name="SettingsListView" 
-                          Background="Transparent"
-                          BorderBrush="{DynamicResource PopupBorderBrush}"
-                          Foreground="{DynamicResource PopupForegroundBrush}"
-                          ItemsSource="{Binding FilteredSettings}">
-                    <ListView.View>
-                        <GridView ColumnHeaderContainerStyle="{StaticResource SettingsHeaderStyle}">
-                            <GridViewColumn Header="Key" Width="180" DisplayMemberBinding="{Binding Key}"/>
-                            <GridViewColumn Header="Value" Width="220" DisplayMemberBinding="{Binding Value}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <StackPanel DockPanel.Dock="Bottom" 
+                            Orientation="Horizontal" 
+                            HorizontalAlignment="Right"
+                            Margin="0,15,0,0">
+                    <Button x:Name="OkButton" 
+                            Content="OK" 
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="OkButton_Click"/>
+                    <Button x:Name="CancelButton" 
+                            Content="Cancel" 
+                            Style="{StaticResource CancelButtonStyle}"
+                            Click="CancelButton_Click"/>
+                    <Button x:Name="ApplyButton" 
+                            Content="Apply" 
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="ApplyButton_Click"/>
+                </StackPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding FilteredSettings}"
+                                  Foreground="{DynamicResource PopupForegroundBrush}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" 
+                                               Text="{Binding Key}" 
+                                               FontWeight="SemiBold"
+                                               Opacity="0.8"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               TextTrimming="CharacterEllipsis"/>
+
+                                    <TextBox Grid.Column="1" 
+                                             Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="{Binding IsReadOnly}"
+                                             Style="{StaticResource SettingTextBoxStyle}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
             </DockPanel>
         </Border>
     </Grid>

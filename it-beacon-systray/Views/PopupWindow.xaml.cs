@@ -10,9 +10,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using it_beacon_common.Config; // --- ADD THIS ---
-using System.Windows.Data; // --- ADD THIS ---
-using System.Windows.Media; // --- ADD THIS ---
+using it_beacon_common.Config;
+using System.Windows.Data;
+using System.Windows.Media; // --- THIS IS NEEDED FOR SetResourceReference ---
 using it_beacon_systray.Views;
 
 namespace it_beacon_systray.Views
@@ -34,10 +34,10 @@ namespace it_beacon_systray.Views
             this.Deactivated += (s, e) => this.Hide();
             this.IsVisibleChanged += PopupWindow_IsVisibleChanged;
 
-            
+
             // Set static values on startup
             HostnameValue.Text = Environment.MachineName;
-            SetUserDisplayName(); 
+            SetUserDisplayName();
 
             // Set the user's display name
             try
@@ -51,7 +51,7 @@ namespace it_beacon_systray.Views
                 UserNameValue.Text = Environment.UserName;
             }
 
-            // --- NEW: Apply config on init ---
+            // --- Apply config on init ---
             ApplyConfiguration();
             // ---
 
@@ -105,19 +105,17 @@ namespace it_beacon_systray.Views
                 var textBlock = new TextBlock
                 {
                     FontFamily = new FontFamily("Segoe Fluent Icons"),
-                    Text = shortcut.Glyph,
+                    Text = shortcut.Glyph, // This is correct! It already contains "&#xE8F2;"
                     FontSize = 12,
                     VerticalAlignment = VerticalAlignment.Center,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Opacity = 0.8
                 };
 
-                // Bind the TextBlock's foreground to the button's foreground
-                var foregroundBinding = new Binding("Foreground")
-                {
-                    RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(Button), 1)
-                };
-                textBlock.SetBinding(TextBlock.ForegroundProperty, foregroundBinding);
+                // --- THIS IS THE FIX (for dark mode color) ---
+                // Set the resource reference directly to the theme's brush.
+                textBlock.SetResourceReference(TextBlock.ForegroundProperty, "PopupForegroundBrush");
+                // --- END OF FIX ---
 
                 button.Content = textBlock;
                 button.Click += QuickShortcut_Click; // Wire up the generic click handler
@@ -185,13 +183,13 @@ namespace it_beacon_systray.Views
         {
             if (e.NewValue is true && Application.Current is App app)
             {
-                // --- NEW: Re-apply config in case it changed (for future hot-reloads) ---
+                // --- Re-apply config in case it changed ---
                 ApplyConfiguration();
                 // ---
 
                 // Refresh data when the window is opened
                 await app.FetchAndSetIpAddressAsync();
-                await app.FetchSnipeItDataAsync(); 
+                await app.FetchSnipeItDataAsync();
 
                 // Set the tooltip for the risk score
                 if (app.LastRiskScoreUpdate.HasValue)
@@ -200,10 +198,10 @@ namespace it_beacon_systray.Views
                 }
                 else
                 {
-                    RiskScoreBorder.ToolTip = "Not updated yet."; 
+                    RiskScoreBorder.ToolTip = "Not updated yet.";
                 }
 
-                UpdateRiskScoreTimestamp(); 
+                UpdateRiskScoreTimestamp();
 
                 // Start the live uptime timer and update it immediately
                 UpdateUptimeText();
@@ -229,12 +227,10 @@ namespace it_beacon_systray.Views
         /// </summary>
         private void UpdateUptimeText()
         {
-            // --- NEW: Check if panel is enabled ---
             if (UptimePanel.Visibility == Visibility.Collapsed)
             {
                 return; // Do not calculate if panel is hidden
             }
-            // ---
 
             // Get the system uptime from the environment ticks
             var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
@@ -309,43 +305,6 @@ namespace it_beacon_systray.Views
             this.Left = workArea.Right - this.Width - 10; // 10px margin
             this.Top = workArea.Bottom - this.Height - 10; // 10px margin
         }
-        
-        // NO LONGER NEW AND TO BE REMOVED SOON: These are replaced by the dynamic quick shortcut buttons.
-        //private void QuickButton1_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-chat") { UseShellExecute = true });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-        //    }
-        //}
-
-        //private void QuickButton2_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        Process.Start(new ProcessStartInfo("https://unt-cvad.github.io/link/cvad-sharepoint") { UseShellExecute = true });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-        //    }
-        //}
-
-        //private void QuickButton3_Click(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        Process.Start(new ProcessStartInfo("https://itservices.cvad.unt.edu") { UseShellExecute = true });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show($"Could not open the website.\n\nError: {ex.Message}");
-        //    }
-        //}
 
         /// <summary>
         /// Copies the text from the TextBlock inside the clicked Border to the clipboard.
@@ -383,7 +342,7 @@ namespace it_beacon_systray.Views
                 await app.FetchAndSetRiskScoreAsync();
                 // After the update is complete, refresh the tooltip immediately.
                 UpdateRiskScoreTooltip();
-                UpdateRiskScoreTimestamp(); 
+                UpdateRiskScoreTimestamp();
             }
         }
 
@@ -448,14 +407,6 @@ namespace it_beacon_systray.Views
             {
                 Application.Current.Shutdown();
             }
-            //else
-            //{
-            //    // Notify the user of the correct key combination
-            //    MessageBox.Show("To exit, please hold Ctrl + Shift + Alt and click 'Exit' again.",
-            //                    "Exit Blocked",
-            //                    MessageBoxButton.OK,
-            //                    MessageBoxImage.Information);
-            //}
         }
 
     }
