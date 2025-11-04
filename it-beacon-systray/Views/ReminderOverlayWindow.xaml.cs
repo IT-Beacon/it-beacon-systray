@@ -21,14 +21,20 @@ namespace it_beacon_systray.Views
 
         private readonly DispatcherTimer _uptimeTimer;
 
+        private readonly int _cooldownMinutes;
+
         private bool _allowClose = false; // Flag to allow closing only from buttons
 
-        public ReminderOverlayWindow(int deferenceCount) // Removed uptimeDisplay parameter
+        public ReminderOverlayWindow(int deferenceCount, string reminderMessage, int cooldownMinutes)
         {
             InitializeComponent();
 
             _deferenceCount = deferenceCount;
             _mainApp = Application.Current as App;
+            _cooldownMinutes = cooldownMinutes; // <-- Store cooldown
+
+            // --- NEW: Set custom message ---
+            ReminderMessageText.Text = reminderMessage;
 
             // Set deference UI (counter, button state)
             UpdateDeferenceUI();
@@ -95,7 +101,24 @@ namespace it_beacon_systray.Views
             }
             else
             {
-                RestartLaterButton.ToolTip = "Postpone the reminder for 6 hours.";
+                // --- MODIFIED: Use dynamic cooldown value for tooltip ---
+                string cooldownString;
+                if (_cooldownMinutes % (60 * 24) == 0 && _cooldownMinutes > 0)
+                {
+                    int days = _cooldownMinutes / (60 * 24);
+                    cooldownString = $"{days} day{(days > 1 ? "s" : "")}";
+                }
+                else if (_cooldownMinutes % 60 == 0 && _cooldownMinutes > 0)
+                {
+                    int hours = _cooldownMinutes / 60;
+                    cooldownString = $"{hours} hour{(hours > 1 ? "s" : "")}";
+                }
+                else
+                {
+                    cooldownString = $"{_cooldownMinutes} minute{(_cooldownMinutes > 1 ? "s" : "s")}";
+                }
+
+                RestartLaterButton.ToolTip = $"Postpone the reminder for {cooldownString}.";
             }
         }
         // ---

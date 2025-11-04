@@ -139,10 +139,10 @@
                                 ToolTip="Coming soon maybe"
                                 Click="SettingsButton_Click">
                             <Button.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu Loaded="ContextMenu_Loaded">
                                     <MenuItem Header="Settings" Click="Settings_Click"/>
                                     <MenuItem Header="About" Click="About_Click"/>
-                                    <MenuItem Header="Test Reminder" Click="TestReminder_Click"/>
+                                    <MenuItem x:Name="TestReminderMenuItem" Header="Test Reminder" Click="TestReminder_Click"/>
                                     <Separator Foreground="{x:Null}" Visibility="Hidden" />
                                     <MenuItem Click="Exit_Click" ToolTip="Only I.T. may exit this app.">
                                         <MenuItem.Header>

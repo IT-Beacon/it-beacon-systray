@@ -359,6 +359,28 @@ namespace it_beacon_systray.Views
             }
         }
 
+        /// <summary>
+        /// Fired when the settings context menu is about to open.
+        /// Used to dynamically show/hide menu items based on settings.
+        /// </summary>
+        private void ContextMenu_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Read the setting from ConfigManager
+                bool isReminderEnabled = ConfigManager.GetBool("/Settings/ReminderOverlay/Enabled", true);
+
+                // Set the visibility of the "Test Reminder" menu item
+                TestReminderMenuItem.Visibility = isReminderEnabled ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PopupWindow.ContextMenu_Loaded] Error updating menu item visibility: {ex.Message}");
+                // Default to visible if something goes wrong to allow testing
+                TestReminderMenuItem.Visibility = Visibility.Visible;
+            }
+        }
+
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             // Check if window is already open
@@ -384,7 +406,7 @@ namespace it_beacon_systray.Views
         private void About_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Open about window
-            MessageBox.Show("About clicked!");
+            MessageBox.Show("Yonathan was here.");
         }
 
         /// <summary>
