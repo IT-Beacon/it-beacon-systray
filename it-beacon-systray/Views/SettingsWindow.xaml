@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:it_beacon_systray.Views"
+        xmlns:helpers="clr-namespace:it_beacon_systray.Helpers"
         mc:Ignorable="d"
         Title="Application Settings" 
         Height="450" Width="650"
@@ -16,6 +17,49 @@
         Foreground="{DynamicResource PopupForegroundBrush}">
 
     <Window.Resources>
+        <helpers:StringToBooleanConverter x:Key="StringToBooleanConverter"/>
+        <helpers:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+
+        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="5,3"/>
+            <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <DataTemplate x:Key="SettingTextTemplate">
+            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                     IsReadOnly="{Binding IsReadOnly}"
+                     Style="{StaticResource SettingTextBoxStyle}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SettingCheckBoxTemplate">
+            <CheckBox IsChecked="{Binding Value, Converter={StaticResource StringToBooleanConverter}, UpdateSourceTrigger=PropertyChanged}"
+                      IsEnabled="{Binding IsReadOnly, Converter={StaticResource InvertBooleanConverter}}"
+                      VerticalAlignment="Center"/>
+        </DataTemplate>
+
+        <helpers:SettingTemplateSelector x:Key="SettingTemplateSelector"
+                                         TextTemplate="{StaticResource SettingTextTemplate}"
+                                         CheckBoxTemplate="{StaticResource SettingCheckBoxTemplate}"/>
+
         <Style x:Key="CategoryListStyle" TargetType="ListBox">
             <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}" />
             <Setter Property="BorderThickness" Value="0"/>
@@ -43,7 +87,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                                 <Setter Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
@@ -56,30 +100,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-
-        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Padding" Value="5,3"/>
-            <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                </Trigger>
-                <Trigger Property="IsFocused" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
-                </Trigger>
-                <Trigger Property="IsReadOnly" Value="True">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="Opacity" Value="0.6"/>
-                    <Setter Property="BorderBrush" Value="Transparent"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
         <Style x:Key="ActionButtonStyle" TargetType="Button">
@@ -111,14 +131,38 @@
             </Setter>
         </Style>
 
-        <Style x:Key="CancelButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-            <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </Window.Resources>
@@ -140,6 +184,11 @@
                            FontWeight="SemiBold" 
                            Opacity="0.7"
                            Margin="10,10,10,5"/>
+                <TextBlock DockPanel.Dock="Bottom"
+                           x:Name="VersionLabel"
+                           Opacity="0.6"
+                           Margin="10,5"
+                           FontSize="11"/>
                 <ListBox x:Name="CategoryListBox"
                          Style="{StaticResource CategoryListStyle}"
                          SelectionChanged="CategoryListBox_SelectionChanged"
@@ -202,10 +251,9 @@
                                                Margin="0,0,10,0"
                                                TextTrimming="CharacterEllipsis"/>
 
-                                    <TextBox Grid.Column="1" 
-                                             Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                             IsReadOnly="{Binding IsReadOnly}"
-                                             Style="{StaticResource SettingTextBoxStyle}"/>
+                                    <ContentPresenter Grid.Column="1"
+                                                      Content="{Binding}"
+                                                      ContentTemplateSelector="{StaticResource SettingTemplateSelector}"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

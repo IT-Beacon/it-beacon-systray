@@ -4,93 +4,113 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:it_beacon_systray.Views"
+        xmlns:effects="clr-namespace:System.Windows.Media.Effects;assembly=PresentationCore"
         mc:Ignorable="d"
-        Title="Restart Reminder"
+        Title="Restart Recommended" 
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
-        WindowState="Maximized"
-        Topmost="True"
-        FontFamily="Segoe UI"
-        Style="{StaticResource PopupWindowStyle}"
+        ResizeMode="NoResize"
         ShowInTaskbar="False"
+        Topmost="True"
+        AllowsTransparency="True"
+        Background="#80000000"
+        WindowState="Maximized"
         Closing="ReminderOverlayWindow_Closing">
 
-    <Grid Background="#CC000000">
+    <Window.Resources>
+        <Style x:Key="OverlayButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                                <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <Border CornerRadius="8"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource PopupBorderBrush}"
-                Background="{DynamicResource PopupBackgroundBrush}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Width="450">
-            <StackPanel Margin="25">
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource OverlayButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <effects:DropShadowEffect x:Key="PopupShadowEffect" ShadowDepth="0" BlurRadius="15" Color="#000000" Opacity="0.2"/>
 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE783;" 
-                               FontSize="32" 
-                               Foreground="{DynamicResource PopupForegroundBrush}" 
-                               VerticalAlignment="Center"/>
-                    <TextBlock Text="Restart Recommended"
-                               Foreground="{DynamicResource PopupForegroundBrush}"
-                               VerticalAlignment="Center"
-                               FontWeight="SemiBold"
-                               FontSize="24"
-                               Margin="15,0,0,0"/>
-                </StackPanel>
+    </Window.Resources>
 
-                <TextBlock x:Name="ReminderMessageText"
-                           TextWrapping="Wrap" 
-                           Foreground="{DynamicResource PopupForegroundBrush}"
-                           Opacity="0.9"
-                           FontSize="14"
-                           Margin="0,0,0,10">
-                    <!-- Text will be set from code-behind -->
-                </TextBlock>
+    <Border Background="{DynamicResource PopupBackgroundBrush}"
+            BorderBrush="{DynamicResource PopupBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Effect="{StaticResource PopupShadowEffect}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Height="320" Width="500">
+        <Grid Margin="25">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <TextBlock x:Name="UptimeDisplay"
-                           Text="System Uptime: ..."
-                           Foreground="{DynamicResource PopupForegroundBrush}"
-                           Opacity="0.7"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Margin="0,10,0,5"/> <TextBlock x:Name="DeferenceCounterText"
-                           Text="Deferrals used: 0 / 3"
-                           Foreground="{DynamicResource PopupForegroundBrush}"
-                           Opacity="0.9"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Left"
-                           Margin="0,0,0,25"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button x:Name="RestartLaterButton"
-                            Content="Restart Later"
-                            Grid.Column="0"
-                            Margin="0,0,5,0"
-                            Padding="10,8"
-                            FontWeight="SemiBold"
-                            Click="RestartLaterButton_Click"
-                            Foreground="{DynamicResource PopupForegroundBrush}"
-                            Style="{StaticResource IconButtonStyle}"/>
-
-                    <Button x:Name="RestartNowButton"
-                            Content="Restart Now"
-                            Grid.Column="1"
-                            Margin="5,0,0,0"
-                            Padding="10,8"
-                            FontWeight="SemiBold"
-                            Click="RestartNowButton_Click"
-                            Foreground="{DynamicResource PopupForegroundBrush}"
-                            Style="{StaticResource IconButtonStyle}"/>
-                </Grid>
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                <TextBlock Text="Restart Recommended" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}"/>
             </StackPanel>
-        </Border>
-    </Grid>
+
+            <!-- Message -->
+            <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
+                Your computer has been running for a long time without a restart. To ensure system stability and apply updates, please restart your machine. Contact I.T. if you need assistance.
+            </TextBlock>
+
+            <!-- Uptime Display -->
+            <TextBlock Grid.Row="2" x:Name="UptimeDisplay" Text="System Uptime: ..." FontSize="12" Margin="0,15,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+
+            <!-- Deference Counter -->
+            <TextBlock Grid.Row="3" x:Name="DeferenceCounterText" Text="Deferrals used: 0 / 3" FontSize="12" Margin="0,5,0,20" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Height="32">
+                <Button x:Name="RestartLaterButton" Content="Restart Later" Style="{StaticResource OverlayButtonStyle}" Click="RestartLaterButton_Click"/>
+                <Button x:Name="RestartNowButton" Content="Restart Now" Style="{StaticResource PrimaryButtonStyle}" Click="RestartNowButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
 </Window>

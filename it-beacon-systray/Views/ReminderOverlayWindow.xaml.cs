@@ -28,6 +28,7 @@ namespace it_beacon_systray.Views
         public ReminderOverlayWindow(int deferenceCount, string reminderMessage, int cooldownMinutes)
         {
             InitializeComponent();
+            CurrentUptime = string.Empty; // Initialize the property
 
             _deferenceCount = deferenceCount;
             _mainApp = Application.Current as App;

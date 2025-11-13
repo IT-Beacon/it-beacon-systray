@@ -9,6 +9,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>beacon-blue.ico</ApplicationIcon>
+
+	<Version>1.0.5</Version>
+	<AssemblyVersion>1.0.5.0</AssemblyVersion>
+	<FileVersion>1.0.5.0</FileVersion>
+	<Company>Yo Khoe Industries</Company>
+	<Product>IT Beacon</Product>
+	<Description>IT Beacon System Tray Application</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +28,21 @@
 	<!-- This is the correct way to add the reference for AccountManagement -->
 	<PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
 	<PackageReference Include="System.Management" Version="9.0.8" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+	
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>

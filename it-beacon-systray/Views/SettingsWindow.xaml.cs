@@ -1,8 +1,9 @@
 ﻿using it_beacon_common.Config;
-using System; // Required for IValueConverter
+using it_beacon_systray.Helpers;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization; // Required for IValueConverter
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,23 +32,43 @@ namespace it_beacon_systray.Views
             // Load all settings from the ConfigManager
             _allSettings = new ObservableCollection<SettingItem>(ConfigManager.GetAllSettings());
 
-            // Create the list of categories from the settings
+            // Find and configure Name/Version settings
+            var appNameSetting = _allSettings.FirstOrDefault(s => s.Key == "Name");
+            var appVersionSetting = _allSettings.FirstOrDefault(s => s.Key == "Version");
+
+            if (appNameSetting != null)
+            {
+                appNameSetting.IsReadOnly = true;
+            }
+            if (appVersionSetting != null)
+            {
+                appVersionSetting.IsReadOnly = true;
+                // Set the version label text
+                VersionLabel.Text = $"{appNameSetting?.Value ?? "App"} v{appVersionSetting.Value}";
+            }
+
+            // Create the list of categories from the settings, excluding "Application"
             Categories = new ObservableCollection<string>(
-                _allSettings.Select(s => s.Category).Distinct().OrderBy(c => c)
+                _allSettings.Select(s => s.Category)
+                            .Distinct()
+                            .Where(c => c != "Application")
+                            .OrderBy(c => c)
             );
 
-            // "All" category is a good default
-            Categories.Insert(0, "All");
-
             // Create the filtered collection view
-            FilteredSettings = CollectionViewSource.GetDefaultView(_allSettings);
+            FilteredSettings = CollectionViewSource.GetDefaultView(
+                _allSettings.Where(s => s.Category != "Application")
+            );
             FilteredSettings.Filter = FilterSettings;
 
             // Set the DataContext to this window instance itself for binding
             this.DataContext = this;
 
             // Set default selection
-            CategoryListBox.SelectedIndex = 0;
+            if (CategoryListBox.Items.Count > 0)
+            {
+                CategoryListBox.SelectedIndex = 0;
+            }
         }
 
         /// <summary>
@@ -55,12 +76,38 @@ namespace it_beacon_systray.Views
         /// </summary>
         private void CategoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Update the header text
-            string selectedCategory = CategoryListBox.SelectedItem as string ?? "All";
-            SettingsHeader.Text = $"{selectedCategory} Settings";
-
-            // Refresh the filter on the settings ListView
+            // Refresh the filter whenever the selection changes
             FilteredSettings.Refresh();
+
+            if (CategoryListBox.SelectedItem is string selectedCategory)
+            {
+                SettingsHeader.Text = $"{selectedCategory} Settings";
+            }
+        }
+
+        /// <summary>
+        /// Saves all changes and closes the window.
+        /// </summary>
+        private void OkButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConfigManager.SaveAllSettings(_allSettings);
+            DialogResult = true;
+        }
+
+        /// <summary>
+        /// Closes the window without saving any pending changes.
+        /// </summary>
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+        }
+
+        /// <summary>
+        /// Saves all pending changes to the settings.xml file.
+        /// </summary>
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConfigManager.SaveAllSettings(_allSettings);
         }
 
         /// <summary>
@@ -73,74 +120,33 @@ namespace it_beacon_systray.Views
                 return false;
             }
 
-            string selectedCategory = CategoryListBox.SelectedItem as string ?? "All";
-
-            // If "All" is selected, show everything
-            if (selectedCategory == "All")
+            // If no category is selected, don't show anything
+            if (CategoryListBox.SelectedItem is not string selectedCategory)
             {
-                return true;
+                return false;
             }
 
-            // Otherwise, only show items that match the selected category
+            // Show items that match the selected category
             return setting.Category == selectedCategory;
         }
 
-        // --- NEW BUTTON HANDLERS ---
-
+        // --- NEW CONVERTER CLASS ---
         /// <summary>
-        /// Saves all changes and closes the window.
+        /// Converts a string ("true", "false") to a bool for CheckBox binding.
         /// </summary>
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        public class BooleanToStringConverter : IValueConverter
         {
-            ApplyButton_Click(sender, e);
-            this.DialogResult = true; // Use DialogResult for modal windows
-            this.Close();
-        }
-
-        /// <summary>
-        /// Closes the window without saving any pending changes.
-        /// </summary>
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Changes are only in memory in the SettingItem objects.
-            // Closing the window discards them.
-            this.DialogResult = false;
-            this.Close();
-        }
-
-        /// <summary>
-        /// Saves all pending changes to the settings.xml file.
-        /// </summary>
-        private void ApplyButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ConfigManager.SaveAllSettings(_allSettings))
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                // Optionally, provide feedback
-                // ApplyButton.Content = "Saved!"; 
+                // Convert string "true" (any case) to bool true
+                return (value as string)?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
             }
-            else
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                MessageBox.Show("There was an error saving the settings. Please check the log.", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Convert bool true back to string "true"
+                return (value is bool b && b) ? "true" : "false";
             }
-        }
-    }
-
-    // --- NEW CONVERTER CLASS ---
-    /// <summary>
-    /// Converts a string ("true", "false") to a bool for CheckBox binding.
-    /// </summary>
-    public class BooleanToStringConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            // Convert string "true" (any case) to bool true
-            return (value as string)?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            // Convert bool true back to string "true"
-            return (value is bool b && b) ? "true" : "false";
         }
     }
 }
