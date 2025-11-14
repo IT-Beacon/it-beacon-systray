@@ -4,7 +4,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -29,23 +31,27 @@ namespace it_beacon_systray.Views
         {
             InitializeComponent();
 
+            // Display the configuration file path
+            var configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config", "settings.xml");
+            if (File.Exists(configFilePath))
+            {
+                ConfigPathLabel.Text = $"Loaded from: {configFilePath}";
+            }
+            else
+            {
+                ConfigPathLabel.Text = $"Configuration file not found. Please ensure 'settings.xml' exists at: {configFilePath}";
+            }
+
             // Load all settings from the ConfigManager
             _allSettings = new ObservableCollection<SettingItem>(ConfigManager.GetAllSettings());
 
-            // Find and configure Name/Version settings
-            var appNameSetting = _allSettings.FirstOrDefault(s => s.Key == "Name");
-            var appVersionSetting = _allSettings.FirstOrDefault(s => s.Key == "Version");
+            // Get app name and version from the assembly
+            var assembly = Assembly.GetExecutingAssembly();
+            var appName = assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "IT Beacon";
+            var appVersion = assembly.GetName().Version?.ToString(3) ?? "0.0.0";
 
-            if (appNameSetting != null)
-            {
-                appNameSetting.IsReadOnly = true;
-            }
-            if (appVersionSetting != null)
-            {
-                appVersionSetting.IsReadOnly = true;
-                // Set the version label text
-                VersionLabel.Text = $"{appNameSetting?.Value ?? "App"} v{appVersionSetting.Value}";
-            }
+            // Set the version label text
+            VersionLabel.Text = $"{appName} v{appVersion}";
 
             // Create the list of categories from the settings, excluding "Application"
             Categories = new ObservableCollection<string>(
@@ -128,6 +134,19 @@ namespace it_beacon_systray.Views
 
             // Show items that match the selected category
             return setting.Category == selectedCategory;
+        }
+
+        /// <summary>
+        /// Handles the KeyDown event for the multi-line TextBox to ensure Enter creates a new line.
+        /// </summary>
+        private void MultiLineTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                var textBox = (TextBox)sender;
+                var binding = textBox.GetBindingExpression(TextBox.TextProperty);
+                binding?.UpdateSource();
+            }
         }
 
         // --- NEW CONVERTER CLASS ---

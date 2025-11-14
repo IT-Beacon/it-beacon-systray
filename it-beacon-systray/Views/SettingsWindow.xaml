@@ -7,7 +7,7 @@
         xmlns:helpers="clr-namespace:it_beacon_systray.Helpers"
         mc:Ignorable="d"
         Title="Application Settings" 
-        Height="450" Width="650"
+        Height="450" Width="720"
         MinWidth="500" MinHeight="350"
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="True"
@@ -50,6 +50,17 @@
                      Style="{StaticResource SettingTextBoxStyle}"/>
         </DataTemplate>
 
+        <DataTemplate x:Key="SettingMultiLineTextTemplate">
+            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                     IsReadOnly="{Binding IsReadOnly}"
+                     Style="{StaticResource SettingTextBoxStyle}"
+                     MinHeight="80"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Auto"
+                     KeyDown="MultiLineTextBox_KeyDown"/>
+        </DataTemplate>
+
         <DataTemplate x:Key="SettingCheckBoxTemplate">
             <CheckBox IsChecked="{Binding Value, Converter={StaticResource StringToBooleanConverter}, UpdateSourceTrigger=PropertyChanged}"
                       IsEnabled="{Binding IsReadOnly, Converter={StaticResource InvertBooleanConverter}}"
@@ -58,7 +69,8 @@
 
         <helpers:SettingTemplateSelector x:Key="SettingTemplateSelector"
                                          TextTemplate="{StaticResource SettingTextTemplate}"
-                                         CheckBoxTemplate="{StaticResource SettingCheckBoxTemplate}"/>
+                                         CheckBoxTemplate="{StaticResource SettingCheckBoxTemplate}"
+                                         MultiLineTextTemplate="{StaticResource SettingMultiLineTextTemplate}"/>
 
         <Style x:Key="CategoryListStyle" TargetType="ListBox">
             <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}" />
@@ -230,6 +242,13 @@
                             Style="{StaticResource ActionButtonStyle}"
                             Click="ApplyButton_Click"/>
                 </StackPanel>
+
+                <TextBlock DockPanel.Dock="Bottom"
+                           x:Name="ConfigPathLabel"
+                           Opacity="0.6"
+                           Margin="0,0,0,10"
+                           FontSize="11"
+                           TextWrapping="Wrap"/>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" 
                               HorizontalScrollBarVisibility="Disabled">

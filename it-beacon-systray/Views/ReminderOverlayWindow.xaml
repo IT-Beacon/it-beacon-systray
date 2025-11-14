@@ -97,7 +97,9 @@
 
             <!-- Message -->
             <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
-                Your computer has been running for a long time without a restart. To ensure system stability and apply updates, please restart your machine. Contact I.T. if you need assistance.
+                Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates.
+                <LineBreak/><LineBreak/>
+                Contact your IT department for support if needed.
             </TextBlock>
 
             <!-- Uptime Display -->
