@@ -45,4 +45,34 @@ namespace it_beacon_systray.Helpers
             return false;
         }
     }
+
+    public class StringToGlyphConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string glyphString && !string.IsNullOrEmpty(glyphString))
+            {
+                // The string is expected to be in the format "&#xABCD;"
+                // We need to extract the hex part "ABCD" and convert it to a char.
+                try
+                {
+                    string hex = glyphString.Trim(new[] { '&', '#', 'x', ';' });
+                    int intValue = int.Parse(hex, NumberStyles.HexNumber);
+                    return (char)intValue;
+                }
+                catch
+                {
+                    // Return empty if parsing fails
+                    return string.Empty;
+                }
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not needed for this use case
+            throw new NotImplementedException();
+        }
+    }
 }

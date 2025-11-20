@@ -1,5 +1,7 @@
+using it_beacon_common.Config;
 using System.Windows;
 using System.Windows.Controls;
+using it_beacon_systray.Models; // Add this using directive for the SettingItem class
 
 namespace it_beacon_systray.Helpers
 {
@@ -8,26 +10,19 @@ namespace it_beacon_systray.Helpers
         public DataTemplate? TextTemplate { get; set; }
         public DataTemplate? CheckBoxTemplate { get; set; }
         public DataTemplate? MultiLineTextTemplate { get; set; }
+        public DataTemplate? GlyphTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            if (item != null)
+            if (item is SettingItem setting)
             {
-                var keyProperty = item.GetType().GetProperty("Key");
-                if (keyProperty?.GetValue(item)?.ToString() == "Reminder Message")
+                return setting.IsType switch
                 {
-                    return MultiLineTextTemplate!;
-                }
-
-                var valueProperty = item.GetType().GetProperty("Value");
-                if (valueProperty != null)
-                {
-                    var value = valueProperty.GetValue(item)?.ToString();
-                    if (bool.TryParse(value, out _))
-                    {
-                        return CheckBoxTemplate!;
-                    }
-                }
+                    "bool" => CheckBoxTemplate!,
+                    "multiline" => MultiLineTextTemplate!,
+                    "glyph" => GlyphTemplate!,
+                    _ => TextTemplate!,
+                };
             }
             return TextTemplate!;
         }

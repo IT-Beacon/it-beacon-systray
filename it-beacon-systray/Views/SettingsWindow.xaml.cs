@@ -148,24 +148,5 @@ namespace it_beacon_systray.Views
                 binding?.UpdateSource();
             }
         }
-
-        // --- NEW CONVERTER CLASS ---
-        /// <summary>
-        /// Converts a string ("true", "false") to a bool for CheckBox binding.
-        /// </summary>
-        public class BooleanToStringConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                // Convert string "true" (any case) to bool true
-                return (value as string)?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                // Convert bool true back to string "true"
-                return (value is bool b && b) ? "true" : "false";
-            }
-        }
     }
 }

@@ -22,9 +22,9 @@
             <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="Margin" Value="10,0"/>
-            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Padding" Value="25,12"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="MinWidth" Value="120"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -67,7 +67,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <effects:DropShadowEffect x:Key="PopupShadowEffect" ShadowDepth="0" BlurRadius="15" Color="#000000" Opacity="0.2"/>
 
     </Window.Resources>
@@ -79,40 +79,51 @@
             Effect="{StaticResource PopupShadowEffect}"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Height="320" Width="500">
-        <Grid Margin="25">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            Width="500">
+        <DockPanel>
+            <!-- Footer Area -->
+            <Border DockPanel.Dock="Bottom" 
+                    Background="{DynamicResource FooterBackgroundBrush}" 
+                    CornerRadius="0,0,7,7"
+                    Padding="15">
+                <Grid Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="RestartLaterButton" Content="Restart Later" Style="{StaticResource OverlayButtonStyle}" Click="RestartLaterButton_Click"/>
+                    <Button Grid.Column="1" x:Name="RestartNowButton" Content="Restart Now" Style="{StaticResource PrimaryButtonStyle}" Click="RestartNowButton_Click"/>
+                </Grid>
+            </Border>
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                <TextBlock Text="Restart Recommended" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}"/>
-            </StackPanel>
+            <!-- Main Content Area -->
+            <Grid Margin="25,25,25,15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Message -->
-            <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
-                Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates.
-                <LineBreak/><LineBreak/>
-                Contact your IT department for support if needed.
-            </TextBlock>
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    <TextBlock Text="Restart Recommended" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                </StackPanel>
 
-            <!-- Uptime Display -->
-            <TextBlock Grid.Row="2" x:Name="UptimeDisplay" Text="System Uptime: ..." FontSize="12" Margin="0,15,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                <!-- Message -->
+                <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
+                    Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates.
+                    <LineBreak/><LineBreak/>
+                    Contact your IT department for support if needed.
+                </TextBlock>
 
-            <!-- Deference Counter -->
-            <TextBlock Grid.Row="3" x:Name="DeferenceCounterText" Text="Deferrals used: 0 / 3" FontSize="12" Margin="0,5,0,20" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+                <!-- Uptime Display -->
+                <TextBlock Grid.Row="2" x:Name="UptimeDisplay" Text="System Uptime: ..." FontSize="12" Margin="0,15,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
 
-            <!-- Buttons -->
-            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Height="32">
-                <Button x:Name="RestartLaterButton" Content="Restart Later" Style="{StaticResource OverlayButtonStyle}" Click="RestartLaterButton_Click"/>
-                <Button x:Name="RestartNowButton" Content="Restart Now" Style="{StaticResource PrimaryButtonStyle}" Click="RestartNowButton_Click"/>
-            </StackPanel>
-        </Grid>
+                <!-- Deference Counter -->
+                <TextBlock Grid.Row="3" x:Name="DeferenceCounterText" Text="Deferrals used: 0 / 3" FontSize="12" Margin="0,5,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+            </Grid>
+        </DockPanel>
     </Border>
 </Window>

@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 // --- ADD THIS USING ALIAS TO FIX AMBIGUITY ---
 using ThemeHelper = it_beacon_common.Helpers.ThemeHelper;
+using SystrayReminderSettings = it_beacon_systray.Models.ReminderSettings;
 
 namespace it_beacon_systray
 {
@@ -392,15 +393,38 @@ namespace it_beacon_systray
                 return;
             }
 
-            // Get custom values from Config
-            string message = ConfigManager.GetString("/Settings/ReminderOverlay/Message",
-                "Your computer has been running for a long time without a restart. " +
-                "To ensure system stability and apply updates, please restart your machine.");
+            // Get all reminder settings from ConfigManager
+            var reminderSettings = new ReminderSettings
+            {
+                Title = ConfigManager.GetString("/Settings/ReminderOverlay/Title", "Restart Recommended"),
+                PrimaryButtonText = ConfigManager.GetString("/Settings/ReminderOverlay/PrimaryButtonText", "Restart Now"),
+                DeferralButtonText = ConfigManager.GetString("/Settings/ReminderOverlay/DeferralButtonText", "Restart Later"),
+                Glyph = ConfigManager.GetString("/Settings/ReminderOverlay/Glyph", "E783"),
+                MaxDeferrals = ConfigManager.GetInt("/Settings/ReminderOverlay/MaxDeferrals", 3),
+                AggressiveMessage = ConfigManager.GetString("/Settings/ReminderOverlay/AggressiveMessage", "Your system is past due for a restart. Please save your work and restart now to apply critical updates."),
+                NormalMessage = ConfigManager.GetString("/Settings/ReminderOverlay/NormalMessage", "Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates."),
+                DeferralDuration = ConfigManager.GetInt("/Settings/ReminderOverlay/DeferralDuration", 360),
+                TriggerTime = ConfigManager.GetInt("/Settings/ReminderOverlay/TriggerTime", 10080),
+                Enabled = ConfigManager.GetBool("/Settings/ReminderOverlay/Enabled", true)
+            };
 
-            int cooldownMinutes = ConfigManager.GetInt("/Settings/ReminderOverlay/CooldownTime", 360); // Default: 6 hours
+            // Determine which message to use
+            string message;
+            if (_restartDeferenceCount >= reminderSettings.MaxDeferrals)
+            {
+                message = reminderSettings.AggressiveMessage;
+            }
+            else
+            {
+                message = reminderSettings.NormalMessage;
+            }
 
-            // Pass new values to the window
-            _reminderWindow = new ReminderOverlayWindow(_restartDeferenceCount, message, cooldownMinutes);
+            // --- FIX: Cast or convert to the correct ReminderSettings type if needed ---
+            _reminderWindow = new ReminderOverlayWindow(
+                _restartDeferenceCount,
+                message,
+                reminderSettings // Now the correct type
+            );
 
             // Null out the reference when the window is closed
             _reminderWindow.Closed += (s, e) => _reminderWindow = null;
@@ -431,7 +455,7 @@ namespace it_beacon_systray
             }
 
             // Get cooldown from config
-            int cooldownMinutes = ConfigManager.GetInt("/Settings/ReminderOverlay/CooldownTime", 360);
+            int cooldownMinutes = ConfigManager.GetInt("/Settings/ReminderOverlay/DeferralDuration", 360);
             _restartCooldownUntil = DateTime.Now.AddMinutes(cooldownMinutes);
             Debug.WriteLine($"[App.RegisterDeference] Cooldown set until: {_restartCooldownUntil}");
 
