@@ -10,9 +10,9 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>beacon-blue.ico</ApplicationIcon>
 
-	<Version>1.0.10</Version>
-	<AssemblyVersion>1.0.10.0</AssemblyVersion>
-	<FileVersion>1.0.10.0</FileVersion>
+	<Version>1.0.11</Version>
+	<AssemblyVersion>1.0.11.0</AssemblyVersion>
+	<FileVersion>1.0.11.0</FileVersion>
 	<Company>Yo Khoe Industries</Company>
 	<Product>IT Beacon</Product>
 	<Description>IT Beacon System Tray Application</Description>

@@ -12,7 +12,7 @@
         ShowInTaskbar="False"
         Topmost="True"
         AllowsTransparency="True"
-        Background="#80000000"
+        Background="Transparent"
         WindowState="Maximized"
         Closing="ReminderOverlayWindow_Closing">
 
@@ -72,58 +72,88 @@
 
     </Window.Resources>
 
-    <Border Background="{DynamicResource PopupBackgroundBrush}"
-            BorderBrush="{DynamicResource PopupBorderBrush}"
-            BorderThickness="1"
-            CornerRadius="8"
-            Effect="{StaticResource PopupShadowEffect}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Width="500">
-        <DockPanel>
-            <!-- Footer Area -->
-            <Border DockPanel.Dock="Bottom" 
-                    Background="{DynamicResource FooterBackgroundBrush}" 
-                    CornerRadius="0,0,7,7"
-                    Padding="15">
-                <Grid Height="40">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" x:Name="RestartLaterButton" Content="Restart Later" Style="{StaticResource OverlayButtonStyle}" Click="RestartLaterButton_Click"/>
-                    <Button Grid.Column="1" x:Name="RestartNowButton" Content="Restart Now" Style="{StaticResource PrimaryButtonStyle}" Click="RestartNowButton_Click"/>
+    <Grid>
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever">
+                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="AnnoyingBorder" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" Duration="0:0:14">
+                            <LinearColorKeyFrame Value="Red" KeyTime="0:0:0"/>
+                            <LinearColorKeyFrame Value="Orange" KeyTime="0:0:2"/>
+                            <LinearColorKeyFrame Value="Yellow" KeyTime="0:0:4"/>
+                            <LinearColorKeyFrame Value="Green" KeyTime="0:0:6"/>
+                            <LinearColorKeyFrame Value="Blue" KeyTime="0:0:8"/>
+                            <LinearColorKeyFrame Value="Indigo" KeyTime="0:0:10"/>
+                            <LinearColorKeyFrame Value="Violet" KeyTime="0:0:12"/>
+                            <LinearColorKeyFrame Value="Red" KeyTime="0:0:14"/>
+                        </ColorAnimationUsingKeyFrames>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
+
+        <!-- Annoying Ring Frame - Not interactive -->
+        <Border x:Name="AnnoyingBorder" BorderThickness="10" IsHitTestVisible="False">
+            <Border.BorderBrush>
+                <SolidColorBrush Color="Red"/>
+            </Border.BorderBrush>
+        </Border>
+
+        <!-- Interactive Dialog Box -->
+        <Border Background="{DynamicResource PopupBackgroundBrush}"
+                BorderBrush="{DynamicResource PopupBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Effect="{StaticResource PopupShadowEffect}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Width="500"
+                IsHitTestVisible="True">
+            <DockPanel>
+                <!-- Footer Area -->
+                <Border DockPanel.Dock="Bottom" 
+                        Background="{DynamicResource FooterBackgroundBrush}" 
+                        CornerRadius="0,0,7,7"
+                        Padding="15">
+                    <Grid Height="40">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" x:Name="DeferralButton" Content="Restart Later" Style="{StaticResource OverlayButtonStyle}" Click="DeferralButton_Click"/>
+                        <Button Grid.Column="1" x:Name="PrimaryButton" Content="Restart Now" Style="{StaticResource PrimaryButtonStyle}" Click="PrimaryButton_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- Main Content Area -->
+                <Grid Margin="25,25,25,15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+                        <TextBlock x:Name="HeaderIcon" Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                        <TextBlock x:Name="HeaderTitle" Text="Restart Recommended" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}"/>
+                    </StackPanel>
+
+                    <!-- Message -->
+                    <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
+                        Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates.
+                        <LineBreak/><LineBreak/>
+                        Contact your IT department for support if needed.
+                    </TextBlock>
+
+                    <!-- Uptime Display -->
+                    <TextBlock Grid.Row="2" x:Name="UptimeDisplay" Text="System Uptime: ..." FontSize="12" Margin="0,15,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
+
+                    <!-- Deference Counter -->
+                    <TextBlock Grid.Row="3" x:Name="DeferenceCounterText" Text="Deferrals used: 0 / 3" FontSize="12" Margin="0,5,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
                 </Grid>
-            </Border>
-
-            <!-- Main Content Area -->
-            <Grid Margin="25,25,25,15">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Header -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-                    <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center" Margin="0,0,15,0" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                    <TextBlock Text="Restart Recommended" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource PopupForegroundBrush}"/>
-                </StackPanel>
-
-                <!-- Message -->
-                <TextBlock Grid.Row="1" x:Name="ReminderMessageText" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.9">
-                    Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates.
-                    <LineBreak/><LineBreak/>
-                    Contact your IT department for support if needed.
-                </TextBlock>
-
-                <!-- Uptime Display -->
-                <TextBlock Grid.Row="2" x:Name="UptimeDisplay" Text="System Uptime: ..." FontSize="12" Margin="0,15,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
-
-                <!-- Deference Counter -->
-                <TextBlock Grid.Row="3" x:Name="DeferenceCounterText" Text="Deferrals used: 0 / 3" FontSize="12" Margin="0,5,0,0" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
-            </Grid>
-        </DockPanel>
-    </Border>
+            </DockPanel>
+        </Border>
+    </Grid>
 </Window>

@@ -7,11 +7,10 @@
         xmlns:helpers="clr-namespace:it_beacon_systray.Helpers"
         mc:Ignorable="d"
         Title="Application Settings" 
-        Height="450" Width="720"
-        MinWidth="500" MinHeight="350"
+        Height="600" Width="800"
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="True"
-        ResizeMode="CanResizeWithGrip"
+        ResizeMode="NoResize"
         Style="{StaticResource PopupWindowStyle}"
         Background="{DynamicResource PopupBackgroundBrush}"
         Foreground="{DynamicResource PopupForegroundBrush}">
@@ -21,13 +20,119 @@
         <helpers:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
         <helpers:StringToGlyphConverter x:Key="StringToGlyphConverter"/>
 
+        <!-- Modern Scrollbar Styles -->
+        <Style x:Key="ScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+            <Setter Property="Width" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border CornerRadius="3"
+                                Background="{DynamicResource PopupBorderBrush}"
+                                Opacity="0.6"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid x:Name="Bg" SnapsToDevicePixels="true">
+                            <Track x:Name="PART_Track"
+                                   IsDirectionReversed="true">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="MinWidth" Value="0"/>
+                    <Setter Property="Height" Value="8"/>
+                    <Setter Property="MinHeight" Value="8"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ScrollBar}">
+                                <Grid x:Name="Bg" SnapsToDevicePixels="true">
+                                    <Track x:Name="PART_Track">
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource ScrollBarThumbStyle}" />
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ModernScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                                    Grid.Column="0"
+                                                    CanContentScroll="{TemplateBinding CanContentScroll}"
+                                                    CanHorizontallyScroll="False"
+                                                    CanVerticallyScroll="False"
+                                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                    Content="{TemplateBinding Content}"
+                                                    Margin="{TemplateBinding Padding}"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar"
+                                       AutomationProperties.AutomationId="VerticalScrollBar"
+                                       Cursor="Arrow"
+                                       Grid.Column="1"
+                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                       Minimum="0"
+                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                       Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                       Opacity="0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_VerticalScrollBar" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- End of Modern Scrollbar Styles -->
+
         <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
             <Setter Property="Padding" Value="5,3"/>
             <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
             <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -196,9 +301,9 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180" MinWidth="150"/>
+            <ColumnDefinition Width="*" MinWidth="180"/>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" 
@@ -223,12 +328,10 @@
             </DockPanel>
         </Border>
 
-        <GridSplitter Grid.Column="1" 
-                      Width="5" 
-                      HorizontalAlignment="Center" 
-                      VerticalAlignment="Stretch"
-                      Background="{DynamicResource PopupBorderBrush}"
-                      Opacity="0.5"/>
+        <Border Grid.Column="1" 
+                Width="1" 
+                Background="{DynamicResource PopupBorderBrush}"
+                Opacity="0.5"/>
 
         <Border Grid.Column="2" 
                 Background="{DynamicResource PopupBackgroundBrush}"
@@ -266,28 +369,43 @@
                            TextWrapping="Wrap"/>
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                              HorizontalScrollBarVisibility="Disabled">
+                              HorizontalScrollBarVisibility="Disabled"
+                              Style="{StaticResource ModernScrollViewerStyle}">
                     <ItemsControl ItemsSource="{Binding FilteredSettings}"
                                   Foreground="{DynamicResource PopupForegroundBrush}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                <Grid Margin="0,0,0,15">
+                                    <!-- Default layout: Label on top, control below -->
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Key}" FontWeight="SemiBold" Opacity="0.8" Margin="0,0,0,5" TextWrapping="Wrap"/>
+                                        <ContentPresenter Content="{Binding}" ContentTemplateSelector="{StaticResource SettingTemplateSelector}"/>
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsType}" Value="boolean">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                    </StackPanel>
 
-                                    <TextBlock Grid.Column="0" 
-                                               Text="{Binding Key}" 
-                                               FontWeight="SemiBold"
-                                               Opacity="0.8"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               TextTrimming="CharacterEllipsis"/>
-
-                                    <ContentPresenter Grid.Column="1"
-                                                      Content="{Binding}"
-                                                      ContentTemplateSelector="{StaticResource SettingTemplateSelector}"/>
+                                    <!-- Special layout for checkboxes: Checkbox on left, label on right -->
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <ContentPresenter Content="{Binding}" ContentTemplateSelector="{StaticResource SettingTemplateSelector}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Key}" FontWeight="SemiBold" Opacity="0.8" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsType}" Value="boolean">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

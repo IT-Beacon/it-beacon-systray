@@ -18,8 +18,8 @@ namespace it_beacon_systray.Helpers
             {
                 return setting.IsType switch
                 {
-                    "bool" => CheckBoxTemplate!,
-                    "multiline" => MultiLineTextTemplate!,
+                    "boolean" => CheckBoxTemplate!,
+                    "textarea" => MultiLineTextTemplate!,
                     "glyph" => GlyphTemplate!,
                     _ => TextTemplate!,
                 };

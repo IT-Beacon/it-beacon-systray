@@ -1,9 +1,9 @@
-﻿using it_beacon_common.Config;
+﻿using it_beacon_systray.Helpers;
 using it_beacon_systray.Models;
-using it_beacon_systray.ViewModels;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -28,24 +28,28 @@ namespace it_beacon_systray.Views
             _deferenceCount = deferenceCount;
             _mainApp = Application.Current as App;
 
-            // Set initial UI text
-            ReminderMessageText.Text = reminderMessage;
-            DeferenceCounterText.Text = $"Deferrals used: {_deferenceCount} / {_settings.MaxDeferrals}";
+            // Set all UI elements from the settings object
+            this.Title = _settings.Title;
+            HeaderTitle.Text = _settings.Title;
+            HeaderIcon.Text = ((char)int.Parse(_settings.Glyph, NumberStyles.HexNumber)).ToString();
+            
+            // Use the formatter for the message
+            TextBlockFormatter.SetFormattedText(ReminderMessageText, reminderMessage);
 
-            // Set button content from settings
-            RestartNowButton.Content = _settings.PrimaryButtonText;
-            RestartLaterButton.Content = _settings.DeferralButtonText;
+            DeferenceCounterText.Text = $"Deferrals used: {_deferenceCount} / {_settings.MaxDeferrals}";
+            PrimaryButton.Content = _settings.PrimaryButtonText;
+            DeferralButton.Content = _settings.DeferralButtonText;
 
             // Handle deferral limit
             if (_deferenceCount >= _settings.MaxDeferrals)
             {
-                RestartLaterButton.IsEnabled = false;
-                RestartLaterButton.ToolTip = "Maximum deferrals reached. Please restart.";
+                DeferralButton.IsEnabled = false;
+                DeferralButton.ToolTip = "Maximum deferrals reached. Please restart.";
             }
             else
             {
-                RestartLaterButton.IsEnabled = true;
-                RestartLaterButton.ToolTip = $"Postpone the reminder for {_settings.DeferralDuration} minutes.";
+                DeferralButton.IsEnabled = true;
+                DeferralButton.ToolTip = $"Postpone the reminder for {GetFriendlyDuration(_settings.DeferralDuration)}.";
             }
 
             // Set up and start the uptime timer
@@ -56,6 +60,28 @@ namespace it_beacon_systray.Views
 
             Closed += OnWindowClosed;
         }
+
+        /// <summary>
+        /// Converts a duration in minutes to a user-friendly string (e.g., "2 hours", "3 days").
+        /// </summary>
+        private string GetFriendlyDuration(int minutes)
+        {
+            var duration = TimeSpan.FromMinutes(minutes);
+
+            if (duration.TotalDays >= 1 && duration.TotalDays % 1 == 0)
+            {
+                int days = (int)duration.TotalDays;
+                return $"{days} day{(days > 1 ? "s" : "")}";
+            }
+            if (duration.TotalHours >= 1 && duration.TotalHours % 1 == 0)
+            {
+                int hours = (int)duration.TotalHours;
+                return $"{hours} hour{(hours > 1 ? "s" : "")}";
+            }
+            
+            return $"{minutes} minute{(minutes > 1 ? "s" : "")}";
+        }
+
 
         private void UptimeTimer_Tick(object? sender, EventArgs e)
         {
@@ -85,7 +111,7 @@ namespace it_beacon_systray.Views
             }
         }
 
-        private void RestartLaterButton_Click(object sender, RoutedEventArgs e)
+        private void DeferralButton_Click(object sender, RoutedEventArgs e)
         {
             bool isShiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
             _mainApp?.RegisterDeference(isReset: isShiftHeld);
@@ -93,7 +119,7 @@ namespace it_beacon_systray.Views
             this.Close();
         }
 
-        private void RestartNowButton_Click(object sender, RoutedEventArgs e)
+        private void PrimaryButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {

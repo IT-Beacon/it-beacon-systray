@@ -1,52 +1,49 @@
+using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
+using System.Windows.Documents;
 
 namespace it_beacon_systray.Helpers
 {
     public static class TextBlockFormatter
     {
-        public static readonly DependencyProperty FormattedTextProperty =
-            DependencyProperty.RegisterAttached(
-                "FormattedText",
-                typeof(string),
-                typeof(TextBlockFormatter),
-                new PropertyMetadata(string.Empty, OnFormattedTextChanged));
-
-        public static string GetFormattedText(DependencyObject obj)
+        public static void SetFormattedText(TextBlock textBlock, string formattedText)
         {
-            return (string)obj.GetValue(FormattedTextProperty);
-        }
+            if (textBlock == null) return;
 
-        public static void SetFormattedText(DependencyObject obj, string value)
-        {
-            obj.SetValue(FormattedTextProperty, value);
-        }
+            textBlock.Inlines.Clear();
+            if (string.IsNullOrEmpty(formattedText)) return;
 
-        private static void OnFormattedTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is ContentControl contentControl)
+            // Replace <br/> with single newlines and <Paragraph> tags with double newlines for more separation
+            string processedText = Regex.Replace(formattedText, "<br/?>", Environment.NewLine, RegexOptions.IgnoreCase);
+            processedText = Regex.Replace(processedText, "<paragraph>", "", RegexOptions.IgnoreCase);
+            processedText = Regex.Replace(processedText, "</paragraph>", Environment.NewLine + Environment.NewLine, RegexOptions.IgnoreCase);
+
+
+            // Regex to find <bold>...</bold> tags, ignoring case
+            string pattern = @"<bold>(.*?)</bold>";
+            var matches = Regex.Matches(processedText, pattern, RegexOptions.IgnoreCase);
+            int lastIndex = 0;
+
+            foreach (Match match in matches)
             {
-                var formattedText = e.NewValue as string;
-                if (!string.IsNullOrEmpty(formattedText))
+                // Add any text before the current bold tag
+                if (match.Index > lastIndex)
                 {
-                    // Wrap the string in a TextBlock to handle parsing of Inlines like <Bold>
-                    var fullXaml = $@"<TextBlock xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" TextWrapping=""Wrap"">{formattedText}</TextBlock>";
-                    try
-                    {
-                        var content = XamlReader.Parse(fullXaml);
-                        contentControl.Content = content;
-                    }
-                    catch (XamlParseException)
-                    {
-                        // In case of parsing error, fall back to plain text
-                        contentControl.Content = new TextBlock { Text = formattedText, TextWrapping = TextWrapping.Wrap };
-                    }
+                    textBlock.Inlines.Add(new Run(processedText.Substring(lastIndex, match.Index - lastIndex)));
                 }
-                else
-                {
-                    contentControl.Content = null;
-                }
+
+                // Add the bolded text
+                textBlock.Inlines.Add(new Bold(new Run(match.Groups[1].Value)));
+
+                lastIndex = match.Index + match.Length;
+            }
+
+            // Add any remaining text after the last bold tag
+            if (lastIndex < processedText.Length)
+            {
+                textBlock.Inlines.Add(new Run(processedText.Substring(lastIndex)));
             }
         }
     }
