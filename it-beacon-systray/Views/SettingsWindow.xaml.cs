@@ -67,7 +67,22 @@ namespace it_beacon_systray.Views
             // Get app name and version from the assembly
             var assembly = Assembly.GetExecutingAssembly();
             var appName = assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "IT Beacon";
-            var appVersion = assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+            
+            // USE: AssemblyInformationalVersion for semantic versioning (supports MinVer)
+            // Fallback to AssemblyFileVersion, then AssemblyVersion
+            string appVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion 
+                                ?? assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+                                ?? assembly.GetName().Version?.ToString(3) 
+                                ?? "0.0.0";
+
+            // If MinVer adds build metadata (e.g., +commitHash), you might optionally trim it for cleaner UI, 
+            // but usually showing the full string is better for troubleshooting.
+            // Example: 1.0.12+25c48f... -> 1.0.12 (optional split)
+            if (appVersion.Contains('+'))
+            {
+                // Optional: Trim the commit hash part if it's too long for the UI
+                appVersion = appVersion.Split('+')[0]; 
+            }
 
             // Set the version label text
             VersionLabel.Text = $"{appName} v{appVersion}";

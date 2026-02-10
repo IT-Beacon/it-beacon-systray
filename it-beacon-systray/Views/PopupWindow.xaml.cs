@@ -3,6 +3,8 @@ using System;
 using System.Diagnostics;
 using System.DirectoryServices.AccountManagement; // Added for retrieving user display name
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -406,8 +408,46 @@ namespace it_beacon_systray.Views
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Open about window
-            MessageBox.Show("Yonathan was here.");
+            var assembly = Assembly.GetExecutingAssembly();
+            
+            // 1. Version (Support MinVer / Semantic Versioning)
+            string version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion 
+                             ?? assembly.GetName().Version?.ToString() 
+                             ?? "Unknown";
+
+            // 2. Developer / Company
+            string company = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? "Unknown Developer";
+
+            // 3. GitHub Project URL (from SourceLink or Project URL attribute if available, otherwise hardcode or infer)
+            // Note: Standard .NET projects might not embed this by default unless configured.
+            // We'll check AssemblyMetadata for "RepositoryUrl" which is common with modern SDK projects.
+            string repoUrl = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(a => a.Key == "RepositoryUrl")?.Value 
+                ?? "https://github.com/IT-Beacon/it-beacon-systray";
+
+            // 4. Build Date (Approximation based on Linker Timestamp or Version info)
+            // Since we can't easily get the exact build time in .NET Core+, we'll try to parse it from the version string 
+            // if MinVer put a commit date there, or just show the version.
+            // Alternatively, we can use the file creation time of the assembly itself.
+            string buildDate = "Unknown";
+            try 
+            {
+                string location = assembly.Location;
+                if (!string.IsNullOrEmpty(location))
+                {
+                     buildDate = File.GetLastWriteTime(location).ToString("g");
+                }
+            }
+            catch {}
+
+            string message = $"Version: {version}\n" +
+                             // $"Developer: {company}\n" +
+                             $"Build Date: {buildDate}";
+
+            // Use the custom AboutWindow safely
+            var aboutWindow = new AboutWindow(message, repoUrl);
+            aboutWindow.Owner = Application.Current.MainWindow ?? this;
+            aboutWindow.ShowDialog();
         }
 
         /// <summary>

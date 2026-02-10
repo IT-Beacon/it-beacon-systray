@@ -8,23 +8,21 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>beacon-blue.ico</ApplicationIcon>
 
-	<Version>1.0.11</Version>
-	<AssemblyVersion>1.0.11.0</AssemblyVersion>
-	<FileVersion>1.0.11.0</FileVersion>
+	<!-- Versioning is now handled by MinVer (derived from Git Tags) -->
 	<Company>Yo Khoe Industries</Company>
 	<Product>IT Beacon</Product>
 	<Description>IT Beacon System Tray Application</Description>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="beacon-blue.ico" />
-  </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
     <PackageReference Include="it-beacon-common" Version="0.1.0-ci.67" />
+    <!-- MinVer automates versioning based on Git tags -->
+    <PackageReference Include="MinVer" Version="5.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <!-- System.DirectoryServices.AccountManagement is part of the Microsoft.Windows.Compatibility package for .NET 5+ -->
   </ItemGroup>
 	
