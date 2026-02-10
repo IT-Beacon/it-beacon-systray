@@ -14,6 +14,7 @@ using it_beacon_common.Config;
 using System.Windows.Data;
 using System.Windows.Media; // --- THIS IS NEEDED FOR SetResourceReference ---
 using it_beacon_systray.Views;
+// using System.Security.Principal;
 
 namespace it_beacon_systray.Views
 {

@@ -21,6 +21,7 @@ namespace it_beacon_systray.Helpers
                     "boolean" => CheckBoxTemplate!,
                     "textarea" => MultiLineTextTemplate!,
                     "glyph" => GlyphTemplate!,
+                    // Removed "image" case
                     _ => TextTemplate!,
                 };
             }

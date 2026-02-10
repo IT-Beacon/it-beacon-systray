@@ -16,6 +16,7 @@
         Foreground="{DynamicResource PopupForegroundBrush}">
 
     <Window.Resources>
+        <!-- String and Boolean Converters -->
         <helpers:StringToBooleanConverter x:Key="StringToBooleanConverter"/>
         <helpers:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
         <helpers:StringToGlyphConverter x:Key="StringToGlyphConverter"/>
@@ -126,16 +127,17 @@
         </Style>
         <!-- End of Modern Scrollbar Styles -->
 
+        <!-- Setting TextBox Style -->
         <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Padding" Value="5,3"/>
-            <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
-            <Setter Property="VerticalContentAlignment" Value="Top"/>
-            <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
+             <Setter Property="Padding" Value="5,3"/>
+             <Setter Property="Background" Value="{DynamicResource PopupBackgroundBrush}"/>
+             <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
+             <Setter Property="BorderThickness" Value="1"/>
+             <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}"/>
+             <Setter Property="VerticalContentAlignment" Value="Top"/>
+             <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
+			<Style.Triggers>
+				<Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                 </Trigger>
                 <Trigger Property="IsFocused" Value="True">
@@ -150,6 +152,7 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Setting Templates -->
         <DataTemplate x:Key="SettingTextTemplate">
             <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                      IsReadOnly="{Binding IsReadOnly}"
@@ -186,18 +189,14 @@
                       VerticalAlignment="Center"/>
         </DataTemplate>
 
+        <!-- Reverted Template Selector - Removed ImageTemplate Property -->
         <helpers:SettingTemplateSelector x:Key="SettingTemplateSelector"
                                          TextTemplate="{StaticResource SettingTextTemplate}"
                                          CheckBoxTemplate="{StaticResource SettingCheckBoxTemplate}"
                                          MultiLineTextTemplate="{StaticResource SettingMultiLineTextTemplate}"
                                          GlyphTemplate="{StaticResource SettingGlyphTemplate}"/>
 
-        <Style x:Key="CategoryListStyle" TargetType="ListBox">
-            <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}" />
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="ItemContainerStyle" Value="{DynamicResource CategoryItemStyle}"/>
-        </Style>
-
+        <!-- Category Item Style (Must be defined before CategoryListStyle if referenced via StaticResource, but ok with Dynamic) -->
         <Style x:Key="CategoryItemStyle" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="10,8"/>
             <Setter Property="Margin" Value="5,2"/>
@@ -234,9 +233,17 @@
             </Setter>
         </Style>
 
+        <!-- Category List Style -->
+        <Style x:Key="CategoryListStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource FooterBackgroundBrush}" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ItemContainerStyle" Value="{DynamicResource CategoryItemStyle}"/>
+        </Style>
+
+        <!-- Action Button Style -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="MinWidth" Value="30"/> <!-- Adjusted for Browse button -->
             <Setter Property="Margin" Value="5,0"/>
             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
@@ -249,15 +256,14 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="{DynamicResource PopupBorderBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource PopupForegroundBrush}"/>
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
+                             <Trigger Property="IsMouseOver" Value="True">
+                                 <Setter Property="Opacity" Value="0.9"/>
+                             </Trigger>
+                             <Trigger Property="IsEnabled" Value="False">
+                                 <Setter Property="Opacity" Value="0.5"/>
+                                 <Setter Property="Cursor" Value="Arrow"/>
+                             </Trigger>
+                        </ControlTemplate.Triggers> 
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -347,6 +353,12 @@
                             Orientation="Horizontal" 
                             HorizontalAlignment="Right"
                             Margin="0,15,0,0">
+                    <Button x:Name="RevertAdminButton" 
+                            Content="Relaunch as User" 
+                            Style="{StaticResource ActionButtonStyle}"
+                            Visibility="Collapsed"
+                            Click="RevertAdminButton_Click"
+                            ToolTip="Relaunch application as a standard user."/>
                     <Button x:Name="OkButton" 
                             Content="OK" 
                             Style="{StaticResource ActionButtonStyle}"

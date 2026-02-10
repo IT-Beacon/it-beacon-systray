@@ -15,5 +15,7 @@ namespace it_beacon_systray.Models
         public int DeferralDuration { get; set; }
         public int TriggerTime { get; set; }
         public bool Enabled { get; set; }
+        public bool ShowHeaderImage { get; set; }
+        public string HeaderImageSource { get; set; } = string.Empty;
     }
 }

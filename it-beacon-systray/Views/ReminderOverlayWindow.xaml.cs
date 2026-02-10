@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace it_beacon_systray.Views
@@ -39,6 +41,30 @@ namespace it_beacon_systray.Views
             DeferenceCounterText.Text = $"Deferrals used: {_deferenceCount} / {_settings.MaxDeferrals}";
             PrimaryButton.Content = _settings.PrimaryButtonText;
             DeferralButton.Content = _settings.DeferralButtonText;
+
+            // Configure Header Image
+            if (_settings.ShowHeaderImage)
+            {
+                HeroBannerBorder.Visibility = Visibility.Visible;
+                try
+                {
+                    if (!string.IsNullOrEmpty(_settings.HeaderImageSource))
+                    {
+                        var brush = new ImageBrush();
+                        brush.ImageSource = new BitmapImage(new Uri(_settings.HeaderImageSource, UriKind.RelativeOrAbsolute));
+                        brush.Stretch = Stretch.UniformToFill;
+                        HeroBannerBorder.Background = brush;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[ReminderOverlayWindow] Failed to load header image: {ex.Message}");
+                }
+            }
+            else
+            {
+                HeroBannerBorder.Visibility = Visibility.Collapsed;
+            }
 
             // Handle deferral limit
             if (_deferenceCount >= _settings.MaxDeferrals)

@@ -405,7 +405,9 @@ namespace it_beacon_systray
                 NormalMessage = ConfigManager.GetString("/Settings/ReminderOverlay/NormalMessage", "Your system has been operating for an extended period without a restart. Please restart to ensure optimal performance and complete pending updates."),
                 DeferralDuration = ConfigManager.GetInt("/Settings/ReminderOverlay/DeferralDuration", 360),
                 TriggerTime = ConfigManager.GetInt("/Settings/ReminderOverlay/TriggerTime", 10080),
-                Enabled = ConfigManager.GetBool("/Settings/ReminderOverlay/Enabled", true)
+                Enabled = ConfigManager.GetBool("/Settings/ReminderOverlay/Enabled", true),
+                ShowHeaderImage = ConfigManager.GetBool("/Settings/ReminderOverlay/ShowHeaderImage", true),
+                HeaderImageSource = ConfigManager.GetString("/Settings/ReminderOverlay/HeaderImageSource", "ms-appx:///Assets/Images/ReminderHeader.png")
             };
 
             // Determine which message to use

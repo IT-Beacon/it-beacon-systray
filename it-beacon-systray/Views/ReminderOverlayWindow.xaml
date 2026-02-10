@@ -109,7 +109,12 @@
                 VerticalAlignment="Center"
                 Width="500"
                 IsHitTestVisible="True">
-            <DockPanel>
+			<DockPanel>
+				<!-- Hero Banner Section -->
+				<Border x:Name="HeroBannerBorder" DockPanel.Dock="Top" Height="72" CornerRadius="7,7,0,0"> <!-- Background="{DynamicResource AccentBrush}" -->
+                    <!-- Background Image will be set in code-behind based on settings -->
+                </Border>
+
                 <!-- Footer Area -->
                 <Border DockPanel.Dock="Bottom" 
                         Background="{DynamicResource FooterBackgroundBrush}" 
@@ -126,7 +131,7 @@
                 </Border>
 
                 <!-- Main Content Area -->
-                <Grid Margin="25,25,25,15">
+                <Grid Margin="25,20,25,15">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
