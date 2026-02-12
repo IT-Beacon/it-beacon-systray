@@ -23,6 +23,10 @@ namespace it_beacon_systray.Views
         private readonly int _deferenceCount;
         private readonly App? _mainApp;
 
+        // Dragging state
+        private Point _clickPosition;
+        private bool _isDragging;
+
         public ReminderOverlayWindow(int deferenceCount, string reminderMessage, ReminderSettings settings)
         {
             InitializeComponent();
@@ -162,6 +166,53 @@ namespace it_beacon_systray.Views
             }
             _allowClose = true;
             this.Close();
+        }
+
+        private void HeroBanner_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = true;
+            _clickPosition = e.GetPosition(this);
+            HeroBannerBorder.CaptureMouse();
+        }
+
+        private void HeroBanner_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _isDragging = false;
+            HeroBannerBorder.ReleaseMouseCapture();
+        }
+
+        private void HeroBanner_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging)
+            {
+                Point currentPosition = e.GetPosition(this);
+                double offsetX = currentPosition.X - _clickPosition.X;
+                double offsetY = currentPosition.Y - _clickPosition.Y;
+
+                // Calculate bounds relative to the window center
+                double borderPadding = 10; // Match the AnnoyingBorder thickness
+                // Limit movement to approximately half of the available space from center
+                double limitX = ((this.ActualWidth - InteractiveDialog.ActualWidth) / 2 - borderPadding) * 0.5;
+                double limitY = ((this.ActualHeight - InteractiveDialog.ActualHeight) / 2 - borderPadding) * 0.5;
+
+                // Ensure limits are non-negative
+                limitX = Math.Max(0, limitX);
+                limitY = Math.Max(0, limitY);
+
+                double newX = DialogTransform.X + offsetX;
+                double newY = DialogTransform.Y + offsetY;
+
+                // Constrain the translation
+                if (newX < -limitX) newX = -limitX;
+                if (newX > limitX) newX = limitX;
+                if (newY < -limitY) newY = -limitY;
+                if (newY > limitY) newY = limitY;
+
+                DialogTransform.X = newX;
+                DialogTransform.Y = newY;
+
+                _clickPosition = currentPosition;
+            }
         }
     }
 }

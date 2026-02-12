@@ -99,21 +99,28 @@
             </Border.BorderBrush>
         </Border>
 
-        <!-- Interactive Dialog Box -->
-        <Border Background="{DynamicResource PopupBackgroundBrush}"
-                BorderBrush="{DynamicResource PopupBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Effect="{StaticResource PopupShadowEffect}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Width="500"
-                IsHitTestVisible="True">
+		<!-- Interactive Dialog Box -->
+		<Border x:Name="InteractiveDialog"
+				Background="{DynamicResource PopupBackgroundBrush}"
+				BorderBrush="{DynamicResource PopupBorderBrush}"
+				BorderThickness="1"
+				CornerRadius="8"
+				Effect="{StaticResource PopupShadowEffect}"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Width="500"
+				IsHitTestVisible="True">
+			<Border.RenderTransform>
+				<TranslateTransform x:Name="DialogTransform"/>
+			</Border.RenderTransform>
 			<DockPanel>
 				<!-- Hero Banner Section -->
-				<Border x:Name="HeroBannerBorder" DockPanel.Dock="Top" Height="72" CornerRadius="7,7,0,0"> <!-- Background="{DynamicResource AccentBrush}" -->
-                    <!-- Background Image will be set in code-behind based on settings -->
-                </Border>
+				<Border x:Name="HeroBannerBorder" DockPanel.Dock="Top" Height="72" CornerRadius="7,7,0,0"
+						MouseLeftButtonDown="HeroBanner_MouseLeftButtonDown"
+						MouseLeftButtonUp="HeroBanner_MouseLeftButtonUp"
+						MouseMove="HeroBanner_MouseMove"> <!-- Background="{DynamicResource AccentBrush}" -->
+					<!-- Background Image will be set in code-behind based on settings -->
+				</Border>
 
                 <!-- Footer Area -->
                 <Border DockPanel.Dock="Bottom" 
