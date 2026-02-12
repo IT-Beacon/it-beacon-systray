@@ -1,7 +1,8 @@
 ﻿<Window x:Class="it_beacon_systray.Views.PopupWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="320" Height="450"
+        Width="320" 
+        SizeToContent="Height"
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="NoResize"
@@ -13,7 +14,7 @@
     <Border CornerRadius="8"
             BorderThickness="1"
             BorderBrush="{DynamicResource PopupBorderBrush}"
-            Background="{DynamicResource PopupBackgroundBrush}" MinHeight="306">
+            Background="{DynamicResource PopupBackgroundBrush}" MinHeight="275">
 
         <Grid Margin="15,5,15,15">
             <Grid.RowDefinitions>
@@ -32,7 +33,7 @@
 
             <Separator Grid.Row="0" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
-            <ScrollViewer Grid.Row="1" Margin="10,15,10,15" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer Grid.Row="1" Margin="10,15,10,30" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" MaxHeight="350">
                 <StackPanel>
                     <StackPanel x:Name="NetworkInfoPanel">
                         <TextBlock Text="NETWORK INFO" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource PopupForegroundBrush}" Opacity="0.7"/>
@@ -93,7 +94,7 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <Separator Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
+            <Separator x:Name="QuickShortcutsSeparator" Grid.Row="1" VerticalAlignment="Bottom" Margin="-15,5,-15,5" Foreground="{DynamicResource PopupBorderBrush}" Background="#3FA0A0A0"/>
 
             <UniformGrid x:Name="QUICK_SHORTCUT_PANEL" Grid.Row="2" Columns="3" Margin="0,5,0,10">
                 <!--<Button ToolTip="Chat with Support" Style="{StaticResource IconButtonStyle}" Click="QuickButton1_Click">

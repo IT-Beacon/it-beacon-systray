@@ -10,7 +10,7 @@
         Height="600" Width="800"
         WindowStartupLocation="CenterScreen"
         ShowInTaskbar="True"
-        ResizeMode="NoResize"
+        Icon="pack://application:,,,/it-beacon-common;component/Assets/Icons/beacon-blue.ico"
         Style="{StaticResource PopupWindowStyle}"
         Background="{DynamicResource PopupBackgroundBrush}"
         Foreground="{DynamicResource PopupForegroundBrush}">
@@ -385,6 +385,29 @@
                               Style="{StaticResource ModernScrollViewerStyle}">
                     <ItemsControl ItemsSource="{Binding FilteredSettings}"
                                   Foreground="{DynamicResource PopupForegroundBrush}">
+                        <ItemsControl.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" 
+                                                   Foreground="{DynamicResource AccentBrush}" 
+                                                   FontWeight="SemiBold" 
+                                                   FontSize="14" 
+                                                   Margin="0,15,0,5">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Name}" Value="QuickShortcuts">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ItemsControl.GroupStyle>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0,0,0,15">

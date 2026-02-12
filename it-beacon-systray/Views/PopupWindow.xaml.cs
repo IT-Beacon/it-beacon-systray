@@ -36,7 +36,7 @@ namespace it_beacon_systray.Views
             InitializeComponent();
             this.Deactivated += (s, e) => this.Hide();
             this.IsVisibleChanged += PopupWindow_IsVisibleChanged;
-
+            this.SizeChanged += (s, e) => PositionNearTray(); // Ensure position updates when size changes
 
             // Set static values on startup
             HostnameValue.Text = Environment.MachineName;
@@ -95,6 +95,10 @@ namespace it_beacon_systray.Views
         {
             QUICK_SHORTCUT_PANEL.Children.Clear();
             var shortcuts = ConfigManager.GetQuickShortcuts();
+
+            bool hasShortcuts = shortcuts.Count > 0;
+            QuickShortcutsSeparator.Visibility = hasShortcuts ? Visibility.Visible : Visibility.Collapsed;
+            QUICK_SHORTCUT_PANEL.Visibility = hasShortcuts ? Visibility.Visible : Visibility.Collapsed;
 
             foreach (var shortcut in shortcuts)
             {
@@ -305,8 +309,9 @@ namespace it_beacon_systray.Views
             var workArea = SystemParameters.WorkArea; // usable screen without taskbar
 
             // Set to bottom-right
-            this.Left = workArea.Right - this.Width - 10; // 10px margin
-            this.Top = workArea.Bottom - this.Height - 10; // 10px margin
+            // Use ActualWidth/Height to account for dynamic sizing
+            this.Left = workArea.Right - this.ActualWidth - 10;
+            this.Top = workArea.Bottom - this.ActualHeight - 10;
         }
 
         /// <summary>

@@ -17,7 +17,7 @@
 	
   <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
-    <PackageReference Include="it-beacon-common" Version="0.1.0-ci.67" />
+    <PackageReference Include="it-beacon-common" Version="0.1.0-ci.68" />
     <!-- MinVer automates versioning based on Git tags -->
     <PackageReference Include="MinVer" Version="5.0.0">
       <PrivateAssets>all</PrivateAssets>

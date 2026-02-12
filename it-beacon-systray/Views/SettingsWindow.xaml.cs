@@ -12,6 +12,8 @@ using System.Security.Principal; // Required for checking Admin privileges
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace it_beacon_systray.Views
 {
@@ -35,6 +37,9 @@ namespace it_beacon_systray.Views
         public SettingsWindow()
         {
             InitializeComponent();
+
+            // Apply Immersive Dark Mode to title bar
+            this.SourceInitialized += (s, e) => ApplyDarkMode();
 
             // Determine the configuration file path with priority:
             // 1. ProgramData (System-wide, secure)
@@ -88,11 +93,24 @@ namespace it_beacon_systray.Views
             VersionLabel.Text = $"{appName} v{appVersion}";
 
             // Create the list of categories from the settings, excluding "Application"
+            // Also exclude the individual "QuickShortcut X" categories from the sidebar
+            var distinctCategories = _allSettings.Select(s => s.Category)
+                                                 .Distinct()
+                                                 .Where(c => c != "Application")
+                                                 .ToList();
+
+            // If we have individual shortcuts, ensure the main "QuickShortcuts" category is present
+            if (distinctCategories.Any(c => c.StartsWith("QuickShortcut ")))
+            {
+                if (!distinctCategories.Contains("QuickShortcuts"))
+                {
+                    distinctCategories.Add("QuickShortcuts");
+                }
+            }
+
             Categories = new ObservableCollection<string>(
-                _allSettings.Select(s => s.Category)
-                            .Distinct()
-                            .Where(c => c != "Application")
-                            .OrderBy(c => c)
+                distinctCategories.Where(c => !c.StartsWith("QuickShortcut "))
+                                  .OrderBy(c => c)
             );
 
             // Create the filtered collection view
@@ -180,19 +198,26 @@ namespace it_beacon_systray.Views
         /// </summary>
         private void CategoryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Refresh the filter whenever the selection changes
-            FilteredSettings.Refresh();
-
             if (CategoryListBox.SelectedItem is string selectedCategory)
             {
+                // Dynamically group items if we are in the QuickShortcuts view
+                FilteredSettings.GroupDescriptions.Clear();
+                if (selectedCategory == "QuickShortcuts")
+                {
+                    FilteredSettings.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
+                }
+
                 SettingsHeader.Text = $"{selectedCategory} Settings";
-                
+
                 // Re-append read-only warning if necessary
                 if (!OkButton.IsEnabled) 
                 {
                     SettingsHeader.Text += " (Read Only)";
                 }
             }
+
+            // Refresh the filter whenever the selection changes
+            FilteredSettings.Refresh();
         }
 
         /// <summary>
@@ -283,6 +308,12 @@ namespace it_beacon_systray.Views
                 return false;
             }
 
+            // Special handling for QuickShortcuts to include the individual shortcuts
+            if (selectedCategory == "QuickShortcuts")
+            {
+                return setting.Category == "QuickShortcuts" || setting.Category.StartsWith("QuickShortcut ");
+            }
+
             // Show items that match the selected category
             return setting.Category == selectedCategory;
         }
@@ -299,5 +330,32 @@ namespace it_beacon_systray.Views
                 binding?.UpdateSource();
             }
         }
+
+        private void ApplyDarkMode()
+        {
+            try
+            {
+                bool isDark = false;
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                {
+                    if (key?.GetValue("AppsUseLightTheme") is int i)
+                    {
+                         isDark = (i == 0);
+                    }
+                }
+
+                if (isDark)
+                {
+                    var windowHelper = new WindowInteropHelper(this);
+                    int attribute = 20; // DWMWA_USE_IMMERSIVE_DARK_MODE
+                    int useDarkMode = 1;
+                    DwmSetWindowAttribute(windowHelper.Handle, attribute, ref useDarkMode, sizeof(int));
+                }
+            }
+            catch { }
+        }
+
+        [DllImport("dwmapi.dll", PreserveSig = true)]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int pvAttribute, int cbAttribute);
     }
 }
